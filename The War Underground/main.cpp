@@ -313,13 +313,21 @@ int main()
         else
             keyHoldSpace = false;
 
-        if (crop != NULL && bKey[7]) {
+        if (crop != NULL && bKey[8]) {
             crop = NULL;
         }
 
         if (crop == NULL && bKey[5]) {
             crop = getFreeNode();
             crop->e.setEntity(1, 0, -1);
+        }
+        if (crop == NULL && bKey[6]) {
+            crop = getFreeNode();
+            crop->e.setEntity(2, 0, -1);
+        }
+        if (crop == NULL && bKey[7]) {
+            crop = getFreeNode();
+            crop->e.setEntity(3, 0, -1);
         }
         // wsprintf(&screen[10 * nScreenWidth + 30], L"%d", nSpeedCounter);
         /*if (test) {
@@ -407,7 +415,7 @@ int main()
 
         // Display to player
         for (int k = 0; k < 9; k++)
-            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\xc0"[k]))) != 0; // left, right, up, down, space, 1, 2, ~
+            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\xc0"[k]))) != 0; // left, right, up, down, space, 1, 2, ~
 
         SetScene(screen);
         SetEntity(screen);

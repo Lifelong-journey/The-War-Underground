@@ -24,7 +24,7 @@ void inititp()
 	itp[0] = { 0, 20, 0, 10, 1000, 0, 80, MOVE, NORMAL, MIDROAD, 3, 12, 14, 4 }; // base
 	itp[1] = { 1, 10, 20, 5, 50, 0, 20, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3 }; // soldier
 	itp[2] = { 2, 50, 15, 10, 300, 0, 100, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4 }; // tank
-	//itp[3] = 
+	itp[3] = { 3, 100, 15, 15, 150, 0, 300, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4 }; // bazooka
 }
 
 //void initgraph()
@@ -113,9 +113,41 @@ void Entity::eDraw(wchar_t* screen)
 		}
 		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx - 1], L"[%d|%d]", life, itp[1].life);
 		break;
+	case 2:
+		if (!dir) {
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"    ___ __ ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" __/___\\__ ");
+			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"/_________\\");
+			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"o o o o o o");
+		}
+		else {
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L" __ ___    ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" __/___\\__ ");
+			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"/_________\\");
+			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"o o o o o o");
+		}
+		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L"[%d|%d]", life, itp[2].life);
+		break;
+	case 3:
+		if (!dir) {
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  // // _  ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" //_//_|_\\ ");
+			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"|_________\\");
+			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" O      O  ");
+		}
+		else {
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  _ \\\\ \\\\  ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" /_|_\\\\_\\\\ ");
+			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"/_________|");
+			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" O      O  ");
+		}
+		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L"[%d|%d]", life, itp[3].life);
+		break;
 	}
+
 	return;
 }
+
 
 int Entity::getMspeed()
 {
@@ -213,10 +245,10 @@ void Entity::eModifyY(bool mdf)
  /_________\
  o o o o o o
 
-	% % _
-  _/_/_|_\
- /________\
- o  o  o  o
+    % % _  
+  _/_/_|_\ 
+ |________\
+  O      O 
 
 
 
