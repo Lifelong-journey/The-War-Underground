@@ -15,16 +15,17 @@ struct Inittype {
 	int state, abnormal;
 	int road;
 	int lx, len, rx, height;
+	int mcount, acount;
 }itp[20];
 
 //wstring graph[30];
 
 void inititp()
 {
-	itp[0] = { 0, 20, 0, 10, 1000, 0, 80, MOVE, NORMAL, MIDROAD, 3, 12, 14, 4 }; // base
-	itp[1] = { 1, 10, 20, 5, 50, 0, 20, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3 }; // soldier
-	itp[2] = { 2, 50, 15, 10, 300, 0, 100, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4 }; // tank
-	itp[3] = { 3, 100, 15, 15, 150, 0, 300, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4 }; // bazooka
+	itp[0] = { 0, 20, 0, 10, 1000, 0, 15, MOVE, NORMAL, MIDROAD, 3, 12, 14, 4, 0, 0 }; // base
+	itp[1] = { 1, 5, 1, 5, 50, 0, 10, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3, 0, 0 }; // soldier
+	itp[2] = { 2, 25, 2, 10, 300, 0, 30, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4, 0, 0 }; // tank
+	itp[3] = { 3, 50, 2, 30, 150, 0, 50, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4, 0, 0 }; // bazooka
 }
 
 //void initgraph()
@@ -36,7 +37,6 @@ Entity::Entity(int num, bool ply)
 {
 	dir = ply;
 	player = ply;
-	//isReady = false;
 	type = itp[num].type;
 	power = itp[num].power;
 	mspeed = itp[num].mspeed;
@@ -51,6 +51,8 @@ Entity::Entity(int num, bool ply)
 	len = itp[num].len;
 	rx = itp[num].rx;
 	height = itp[num].height;
+	mcount = itp[num].mcount;
+	acount = itp[num].acount;
 }
 void Entity::setEntity(int num, bool ply, int x)
 {
@@ -68,6 +70,8 @@ void Entity::setEntity(int num, bool ply, int x)
 	road = itp[num].road;
 	len = itp[num].len;
 	height = itp[num].height;
+	mcount = itp[num].mcount;
+	acount = itp[num].acount;
 	if (x == -1) {
 		lx = itp[num].lx;
 		rx = itp[num].rx;
@@ -195,6 +199,16 @@ int Entity::getLife()
 	return life;
 }
 
+int Entity::getMcount()
+{
+	return mcount;
+}
+
+int Entity::getAcount()
+{
+	return acount;
+}
+
 void Entity::setDir(bool t)
 {
 	dir = t;
@@ -205,9 +219,39 @@ void Entity::setState(int x)
 	state = x;
 }
 
+void Entity::resetMcount()
+{
+	mcount = 0;
+}
+
+void Entity::resetAcount()
+{
+	acount = 0;
+}
+
+void Entity::addMcount()
+{
+	++mcount;
+}
+
+void Entity::addAcount()
+{
+	++acount;
+}
+
 void Entity::mdfLife(int x)
 {
 	life += x;
+}
+
+void Entity::eMoveUp()
+{
+	--road;
+}
+
+void Entity::eMoveDown()
+{
+	++road;
 }
 
 bool Entity::eAttack()

@@ -23,6 +23,11 @@ using namespace std;
 #define LBOUNDARY 50
 #define RBOUNDARY 129
 
+#define PIPEA 30
+#define PIPEB 89
+#define PIPEC 148
+#define PIPED 50
+#define PIPEE 128
 
 const int nScreenWidth = 179, nScreenHeight = 52;
 
@@ -36,6 +41,7 @@ private:
 	int road;
 	int lx, len, rx, height;
 	int dir; // 0 right  1 left
+	int mcount, acount;
 
 public:
 	Entity() = default;
@@ -48,18 +54,27 @@ public:
 	void eModifyY(bool);
 
 	int getMspeed();
+	int getAspeed();
 	bool getPlayer();
 	int getRoad();
 	int getLx();
 	int getRange();
 	int getRx();
 	int getPower();
-	int getAspeed();
 	int getLife();
+	int getMcount();
+	int getAcount();
 
 	void setDir(bool);
 	void setState(int);
 	void mdfLife(int);
+	void resetMcount();
+	void resetAcount();
+	void addMcount();
+	void addAcount();
+
+	void eMoveUp();
+	void eMoveDown();
 };
 
 struct eNode {
