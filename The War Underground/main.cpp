@@ -10,7 +10,7 @@
 using namespace std;
 
 //Entity test;
-bool bKey[10]; // keyboard press
+bool bKey[16]; // keyboard press
 //int rNum[4] = { 17, 30, 42 };
 //Entity test;
 bool keyHoldW = false, keyHoldS = false, keyHoldSpace = false;
@@ -111,15 +111,135 @@ void SetEntity(wchar_t* screen)
 void Attack(eNode* source, eNode* target)
 {
     source->e.setState(ATTACK);
-    source->e.addAcount();
-    source->e.resetMcount();
-    if (source->e.getAcount() % source->e.getAspeed() == 0 && source->e.getAcount() != source->e.getAspeed()) { // not correct
-        target->e.mdfLife(-target->e.getPower());
+    if (source->e.getType() == 6) {
+        for (auto i = source->ne; i != NULL; i = i->ne) {
+            if (source->e.getRx() + 15 < i->e.getLx())
+                break;
+            if (i->e.getPlayer() != source->e.getPlayer())
+                i->e.mdfLife(-source->e.getPower());
+        }
+        for (auto i = source->pre; i != NULL; i = i->pre) {
+            if (source->e.getLx() - 15 > i->e.getRx())
+                break;
+            if (i->e.getPlayer() != source->e.getPlayer())
+                i->e.mdfLife(-source->e.getPower());
+        }
+        source->e.mdfLife(-200);
+        return;
     }
+    source->e.addAcount(1);
+    source->e.resetMcount();
+    if (source->e.getAcount() > source->e.getAspeed()) {
+        source->e.addAcount(-source->e.getAspeed());
+        if (source->e.getType() == 10) {
+            if (target->e.getLx() > source->e.getLx()) {
+                for (auto i = target; i != NULL; i = i->ne) {
+                    if (source->e.getRx() + source->e.getRange() < i->e.getLx())
+                        break;
+                    if (i->e.getPlayer() != source->e.getPlayer())
+                        i->e.mdfLife(-source->e.getPower());
+                }
+            }
+            else {
+                for (auto i = target; i != NULL; i = i->pre) {
+                    if (source->e.getLx() - source->e.getRange() > i->e.getRx())
+                        break;
+                    if (i->e.getPlayer() != source->e.getPlayer())
+                        i->e.mdfLife(-source->e.getPower());
+                }
+            }
+            return;
+        }
+        target->e.mdfLife(-source->e.getPower());
+    }
+    return;
 }
 
 bool CheckAttack(eNode* a) // Can be better
 {
+    if (a->e.getType() == 7) {
+        if (a->pre == NULL) // Nothing left
+        {
+            if (a->ne == NULL)
+                return false;
+            else {
+                auto next = a->ne;
+                while (next != NULL && (next->e.getPlayer() == a->e.getPlayer() || next->e.getRx() < a->e.getRx() + 25)) { // find the right-first enemy
+                    if (next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range
+                        return false;
+                    next = next->ne;
+                }
+
+                if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) // out of attack range Or no enemy
+                    return false;
+                else
+                    Attack(a, next);
+            }
+        }
+        else if (a->ne == NULL) { // Nothing right
+            auto prev = a->pre;
+            while (prev != NULL && (prev->e.getPlayer() == a->e.getPlayer() || prev->e.getLx() > a->e.getLx() - 25)) {
+                if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
+                    return false;
+                prev = prev->pre;
+            }
+            if (prev == NULL || prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25)  // out of attack range Or no enemy
+                return false;
+            else {
+                a->e.setDir(1);
+                Attack(a, prev);
+            }
+
+        }
+        else {
+            auto prev = a->pre, next = a->ne;
+            while (prev != NULL && (prev->e.getPlayer() == a->e.getPlayer() || prev->e.getLx() > a->e.getLx() - 25)) {
+                if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
+                    break;
+                prev = prev->pre;
+            }
+            while (next != NULL && (next->e.getPlayer() == a->e.getPlayer() || next->e.getRx() < a->e.getRx() + 25)) { // find the right-first enemy
+                if (next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range
+                    break;
+                next = next->ne;
+            }
+            if (prev == NULL) {
+                if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) // out of attack range Or no enemy
+                    return false;
+                else
+                    Attack(a, next);
+            }
+            else if (next == NULL) {
+                if (prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25)
+                    return false;
+                else {
+                    a->e.setDir(1);
+                    Attack(a, prev);
+                }
+            }
+            else {
+                if (prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25) {
+                    if (next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25)
+                        return false;
+                    else
+                        Attack(a, next);
+                }
+                else if (next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) {
+                    a->e.setDir(1);
+                    Attack(a, prev);
+                }
+                else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx())
+                    Attack(a, next);
+                else {
+                    a->e.setDir(1);
+                    Attack(a, prev);
+                }
+            }
+        }
+        return true;
+    }
+
+
     if (a->pre == NULL) // Nothing left
     {
         if (a->ne == NULL)
@@ -143,6 +263,7 @@ bool CheckAttack(eNode* a) // Can be better
         while (prev != NULL && prev->e.getPlayer() == a->e.getPlayer()) {
             if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
                 return false;
+            prev = prev->pre;
         }
         if (prev == NULL || prev->e.getRx() < a->e.getLx() - a->e.getRange())  // out of attack range Or no enemy
             return false; 
@@ -203,6 +324,7 @@ bool CheckAttack(eNode* a) // Can be better
 
 void AddList(eNode* a, eNode* &list)
 {
+    
     if (list == NULL) {
         //test = true;
         a->pre = NULL;
@@ -245,10 +367,17 @@ eNode* getFreeNode()
 
 bool CheckMove(eNode* x, int dist)
 {
-    if (x->e.getRx() + dist > 160 || x->e.getLx() + dist < 10)
+
+    if (x->e.getRx() + dist > 170 || x->e.getLx() + dist < 10)
         return false;
-    if (x->ne == NULL || x->ne->e.getLx() > x->e.getRx() + dist)
-        return true;
+    if (!x->e.getPlayer()) {
+        if (x->ne == NULL || x->ne->e.getLx() > x->e.getRx() + dist)
+            return true;
+    }
+    else {
+        if (x->pre == NULL || x->pre->e.getRx() < x->e.getLx() - dist)
+            return true;
+    }
     return false;
 }
 
@@ -257,8 +386,13 @@ void Move(eNode* x)
     if (x->e.getMspeed() == 0)
         return;
     x->e.addMcount();
+
     if (x->e.getMcount() % x->e.getMspeed() == 0 && CheckMove(x, 1)) { // not correct
-        x->e.eMoveX(1, true);
+
+        if (!x->e.getPlayer())
+            x->e.eMoveX(1, true);
+        else
+            x->e.eMoveX(-1, true);
     }
 }
 
@@ -291,7 +425,7 @@ bool CheckAttackB(eNode* a, eNode* list)
     for (auto i = list; i != NULL; i = i->ne)
     {
         int alx = a->e.getLx(), arx = a->e.getRx(), ar = a->e.getRange(), ilx = i->e.getLx(), irx = i->e.getRx();
-        if (i->e.getPlayer() != a->e.getPlayer() && (ilx <= arx + ar && ilx > arx || irx >= alx + ar && irx < alx))
+        if (i->e.getPlayer() != a->e.getPlayer() && (ilx <= arx + ar && ilx > arx || irx >= alx - ar && irx < alx))
             return true;
     }
     return  false;
@@ -392,6 +526,35 @@ bool CheckUpDown(eNode* x)
     return false;
 }
 
+void StatusAccount(eNode* &list)
+{
+    eNode* now = NULL;
+    for (auto i = list; i != NULL; i = i->ne)
+    {
+        if (now != NULL) {
+            NodeFree(now, list);
+            now = NULL;
+        }
+        if (!CheckAlive(i))
+            now = i;
+    }
+    if (now != NULL)
+        NodeFree(now, list);
+}
+
+void AttackMove(eNode*& list)
+{
+    for (auto i = list; i != NULL; i = i->ne)
+    {
+        if (!CheckAttack(i)) {
+            //i->e.setDir(0); // this will be done at the draw part
+            i->e.resetAcount();
+            if (!CheckUpDown(i))
+                Move(i); // not attack
+        }
+    }
+}
+
 int main()
 {
     inititp();
@@ -415,6 +578,7 @@ int main()
         nSpeedCounter += 10;
         // Input
         if (bKey[4]) {
+            //test = true;
             if (!keyHoldSpace) {
                 if (crop != NULL) {
                     if (crop->e.getRoad() == UPROAD && !CheckCollision(crop, hUp)) {
@@ -438,31 +602,42 @@ int main()
         else
             keyHoldSpace = false;
 
-        if (crop != NULL && bKey[8]) {
+        if (crop != NULL && bKey[14]) {
             crop = NULL;
         }
 
         if (crop == NULL && bKey[5]) {
             crop = getFreeNode();
-            crop->e.setEntity(1, 0, -1);
+            crop->e.setEntity(10, 0, -1);
         }
         if (crop == NULL && bKey[6]) {
             crop = getFreeNode();
-            crop->e.setEntity(2, 0, -1);
+            crop->e.setEntity(1, 1, 150);
         }
         if (crop == NULL && bKey[7]) {
             crop = getFreeNode();
             crop->e.setEntity(3, 0, -1);
         }
-       // wsprintf(&screen[16 * nScreenWidth + 30], L"!!!");
-        if (test) {
-            wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
+        if (crop == NULL && bKey[8]) {
+            crop = getFreeNode();
+            crop->e.setEntity(4, 1, -1);
         }
-        int cnt = 0;
-        for (auto i = hDown; i != NULL; i = i->ne) {
+        if (crop == NULL && bKey[9]) {
+            crop = getFreeNode();
+            crop->e.setEntity(5, 1, -1);
+        }
+        if (hDown != NULL)
+            wsprintf(&screen[16 * nScreenWidth + 30], L"%d", hDown->e.getAcount());
+        //if (hDown != NULL && hDown->e.getState() == ATTACK) {
+        //    wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
+        //}
+        /*if (test)
+            wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");*/
+        /*int cnt = 0;
+        for (auto i = hMid; i != NULL; i = i->ne) {
             cnt++;
             wsprintf(&screen[10 * nScreenWidth + 10], L"%d", cnt);
-        }
+        }*/
 
         
 
@@ -492,80 +667,18 @@ int main()
 
         // Game Logic
         // Check attack
-        for (auto i = hUp; i != NULL; i = i->ne)
-        {
-            if (!CheckAttack(i)) {
-                //i->e.setDir(0); // this will be done at the draw part
-                i->e.resetAcount();
-                if (!CheckUpDown(i))
-                    Move(i); // not attack
-            }
-        }
-        for (auto i = hMid; i != NULL; i = i->ne)
-        {
-            if (!CheckAttack(i)) {
-                //i->e.setDir(0); // this will be done at the draw part
-                i->e.resetAcount();
-                if (!CheckUpDown(i))
-                    Move(i); // not attack
-            }
-        }
-        for (auto i = hDown; i != NULL; i = i->ne)
-        {
-            if (!CheckAttack(i)) {
-                //i->e.setDir(0); // this will be done at eDraw
-                i->e.resetAcount();
-                if (!CheckUpDown(i))
-                    Move(i); // not attack
-            }
-        }
+        AttackMove(hUp);
+        AttackMove(hMid);
+        AttackMove(hDown);
 
         // Check invalid entities and delete
-        eNode* now = NULL;
-        for (auto i = hUp; i != NULL; i = i->ne)
-        {
-            if (now != NULL) {
-                NodeFree(now, hUp);
-                now = NULL;
-            }
-            if (!CheckAlive(i))
-                now = i;
-        }
-        if (now != NULL)
-            NodeFree(now, hUp);
-        now = NULL;
-
-        for (auto i = hMid; i != NULL; i = i->ne)
-        {   
-            if (now != NULL) {
-                NodeFree(now, hMid);
-                now = NULL;
-            }
-            if (!CheckAlive(i))
-                now = i;
-        }
-        if (now != NULL)
-            NodeFree(now, hMid);
-        now = NULL;
-
-        for (auto i = hDown; i != NULL; i = i->ne)
-        {
-            if (now != NULL) {
-                NodeFree(now, hDown);
-                now = NULL;
-            }
-            if (!CheckAlive(i))
-                now = i;
-        }
-        if (now != NULL)
-            NodeFree(now, hDown);
-        now = NULL;
-
-
+        StatusAccount(hUp);
+        StatusAccount(hMid);
+        StatusAccount(hDown);
 
         // Display to player
-        for (int k = 0; k < 9; k++)
-            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\xc0"[k]))) != 0; // left, right, up, down, space, 1, 2, ~
+        for (int k = 0; k < 16; k++)
+            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\x36\x37\x38\x39\xc0"[k]))) != 0; // left, right, up, down, space, 1, 2, ~
 
 
         SetEntity(screen);

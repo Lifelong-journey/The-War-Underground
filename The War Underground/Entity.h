@@ -64,6 +64,8 @@ public:
 	int getLife();
 	int getMcount();
 	int getAcount();
+	int getState();
+	int getType();
 
 	void setDir(bool);
 	void setState(int);
@@ -71,7 +73,7 @@ public:
 	void resetMcount();
 	void resetAcount();
 	void addMcount();
-	void addAcount();
+	void addAcount(int);
 
 	void eMoveUp();
 	void eMoveDown();
