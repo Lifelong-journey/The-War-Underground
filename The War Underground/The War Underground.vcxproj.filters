@@ -21,9 +21,18 @@
     <ClCompile Include="Entity.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Define.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

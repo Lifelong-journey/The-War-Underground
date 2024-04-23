@@ -1,13 +1,11 @@
 #include "Entity.h"
+#include "Define.h"
 #include <iostream>
 #include <cstring>
 
 using namespace std;
 
-
-int rNum[4] = { 17, 30, 42 }; // the same as U, M, D overhead
-
-
+static int rNum[4] = { 17, 30, 42 }; // the same as U, M, D overhead
 
 struct Inittype {
 	int type;
@@ -30,7 +28,7 @@ void inititp()
 	itp[5] = { 5, 0, 0, 0, 500, 0, 0, MOVE, NORMAL, MIDROAD, 15, 12, 26, 4, 0, 0 }; // plant
 	itp[6] = { 6, 200, 1, 5, 50, 0, 0, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // bomber
 	itp[7] = { 7, 150, 3, 50, 200, 0, 70, MOVE, NORMAL, MIDROAD, 15, 12, 26, 4, 0, 0 }; // heavy artillery
-	itp[8] = { 8, -10, 2, 10, 75, 0, 30, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // guard
+	itp[8] = { 8, 0, 1, 10, 75, 0, 30, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // guard
 	itp[9] = { 9, 50, 2, 3, 125, 0, 15, MOVE, NORMAL, MIDROAD, 15, 9, 23, 4, 0, 0 }; // sonic cannon
 	itp[10] = { 10, 10, 2, 25, 100, 0, 15, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3, 0, 0 }; // flamethrower
 }
@@ -210,7 +208,7 @@ void Entity::eDraw(wchar_t* screen)
 		wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" __|__ ");
 		wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"|__+__|");
 		wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"O     O");
-		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx + 2], L"[%d|%d]", life, itp[8].life);
+		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L"[%d|%d]", life, itp[8].life);
 		break;
 	case 9:
 		if (!dir) {
@@ -345,6 +343,14 @@ void Entity::resetAcount()
 	acount = 0;
 }
 
+void Entity::resetData()
+{
+	armor = 0;
+	mspeed = itp[type].mspeed;
+	dir = player;
+	range = itp[type].range;
+}
+
 void Entity::addMcount()
 {
 	++mcount;
@@ -360,7 +366,17 @@ void Entity::mdfLife(int x)
 	if (x < 0)
 		life += min(0, armor + x);
 	else
-		life += x;
+		life = min(itp[type].life, life + x);
+}
+
+void Entity::mdfRange(int x)
+{
+	range = x;
+}
+
+void Entity::mdfArmor(int x)
+{
+	armor = x;
 }
 
 void Entity::eMoveUp()

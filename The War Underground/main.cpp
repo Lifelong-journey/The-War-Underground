@@ -5,7 +5,9 @@
 #include <Windows.h>
 #include <thread>
 
+#include "Define.h"
 #include "Entity.h"
+#include "Weapon.h"
 
 using namespace std;
 
@@ -13,11 +15,13 @@ using namespace std;
 bool bKey[16]; // keyboard press
 //int rNum[4] = { 17, 30, 42 };
 //Entity test;
-bool keyHoldW = false, keyHoldS = false, keyHoldSpace = false;
+bool keyHoldW = false, keyHoldS = false, keyHoldSpace = false, keyHoldA = false, keyHoldD = false;
 int nSpeedCounter = 0;
 wchar_t* screen = new wchar_t[nScreenWidth * nScreenHeight];
 struct eNode* hFree = NULL, * hUp = NULL, * hMid = NULL, * hDown = NULL;
-struct eNode* crop = NULL;
+struct wNode* wFree = NULL, * wUp = NULL, * wMid = NULL, * wDown = NULL;
+struct eNode* crope = NULL;
+struct wNode* cropw = NULL;
 
 bool test = false;
 
@@ -28,9 +32,22 @@ void nalloc()
         eNode* ep = new eNode();
         ep->pre = NULL;
         ep->ne = hFree;
+        if (hFree != NULL)
+            hFree->pre = ep;
         hFree = ep;
     }
+
+    for (int i = 0; i < 20; i++)
+    {
+        wNode* wp = new wNode();
+        wp->ne = wFree;
+        wp->pre = NULL;
+        if (wFree != NULL)
+            wFree->pre = wp;
+        wFree = wp;
+    }
 }
+
 
 void print()
 {
@@ -94,18 +111,39 @@ void SetScene(wchar_t* screen)
 
 void SetEntity(wchar_t* screen)
 {
-    for (auto i = hUp; i != NULL; i = i->ne)
+    for (auto i = hUp; i != NULL; i = i->ne) {
         i->e.eDraw(screen);
-    for (auto i = hMid; i != NULL; i = i->ne)
+        i->e.resetData();
+    }
+
+    for (auto i = hMid; i != NULL; i = i->ne) {
         i->e.eDraw(screen);
-    for (auto i = hDown; i != NULL; i = i->ne)
+        i->e.resetData();
+    }
+
+    for (auto i = hDown; i != NULL; i = i->ne) {
         i->e.eDraw(screen);
-    if (crop != NULL) {
+        i->e.resetData();
+    }
+
+    if (crope != NULL) {
         //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
-        crop->e.eDraw(screen);
+        crope->e.eDraw(screen);
     }
 
     return;
+}
+void SetWeapon(wchar_t* screen)
+{
+    for (auto i = wUp; i != NULL; i = i->ne)
+        i->w.wDraw(screen);
+    for (auto i = wMid; i != NULL; i = i->ne)
+        i->w.wDraw(screen);
+    for (auto i = wDown; i != NULL; i = i->ne)
+        i->w.wDraw(screen);
+    if (cropw != NULL) {
+        cropw->w.wDraw(screen);
+    }
 }
 
 void Attack(eNode* source, eNode* target)
@@ -358,24 +396,47 @@ void AddList(eNode* a, eNode* &list)
     return;
 }
 
-eNode* getFreeNode()
+void AddwList(wNode* a, wNode* &list) // 头插法
+{
+    if (list == NULL) {
+        a->ne = NULL;
+        a->pre = NULL;
+        list = a;
+    }
+    else {
+        a->pre = NULL;
+        a->ne = list;
+        list->pre = a;
+        list = a;
+    }
+}
+
+eNode* getFreeeNode()
 {
     eNode* x = hFree;
     hFree = hFree->ne;
+    x->pre = NULL;
+    x->ne = NULL;
+    return x;
+}
+
+wNode* getFreewNode()
+{
+    wNode* x = wFree;
+    wFree = wFree->ne;
     return x;
 }
 
 bool CheckMove(eNode* x, int dist)
 {
-
     if (x->e.getRx() + dist > 170 || x->e.getLx() + dist < 10)
         return false;
     if (!x->e.getPlayer()) {
-        if (x->ne == NULL || x->ne->e.getLx() > x->e.getRx() + dist)
+        if (x->ne == NULL || (x->ne->e.getPlayer() == 0 && (x->ne->e.getType() == 0 || x->ne->e.getType() == 4 || x->ne->e.getType() == 5)) || x->ne->e.getLx() > x->e.getRx() + dist)
             return true;
     }
     else {
-        if (x->pre == NULL || x->pre->e.getRx() < x->e.getLx() - dist)
+        if (x->pre == NULL || (x->pre->e.getPlayer() == 1 && (x->pre->e.getType() == 0 || x->pre->e.getType() == 4 || x->pre->e.getType() == 5)) || x->pre->e.getRx() < x->e.getLx() - dist)
             return true;
     }
     return false;
@@ -396,10 +457,20 @@ void Move(eNode* x)
     }
 }
 
+void wMove(wNode* x)
+{
+    if (x->w.getMspeed() == 0)
+        return;
+    if (!x->w.getPlayer())
+        x->w.wMoveX(1, true);
+    else
+        x->w.wMoveX(-1, true);
+}
+
 void initBase()
 {
-    eNode* p1 = getFreeNode();
-    eNode* p2 = getFreeNode();
+    eNode* p1 = getFreeeNode();
+    eNode* p2 = getFreeeNode();
     p1->e.setEntity(0, 0, 2);
     p2->e.setEntity(0, 1, 165);
     hMid = p1;
@@ -431,7 +502,7 @@ bool CheckAttackB(eNode* a, eNode* list)
     return  false;
 }
 
-void NodeFree(eNode* x, eNode* &list)
+void eNodeDelete(eNode* x, eNode*& list)
 {
     if (x->pre == NULL) {
         if (x->ne == NULL) {
@@ -453,6 +524,44 @@ void NodeFree(eNode* x, eNode* &list)
     }
 }
 
+void eNodeFree(eNode* x)
+{
+    hFree->pre = x;
+    x->ne = hFree;
+    hFree = x;
+}
+
+void wNodeDelete(wNode* x, wNode*& list)
+{
+    if (x->pre == NULL) {
+        if (x->ne == NULL) {
+            //test = true;
+            list = NULL;
+        }
+        else {
+            list = x->ne;
+            x->ne->pre = NULL;
+        }
+    }
+    else if (x->ne == NULL) {
+        x->pre->ne = NULL;
+    }
+    else {
+        x->pre->ne = x->ne;
+        x->ne->pre = x->pre;
+    }
+    x->ne = NULL;
+    x->pre = NULL;
+}
+
+void wNodeFree(wNode* x)
+{
+
+    wFree->pre = x;
+    x->ne = wFree;
+    wFree = x;
+}
+
 bool CheckAlive(eNode* a)
 {
     return (a->e.getLife() > 0);
@@ -471,14 +580,14 @@ bool CheckUpDown(eNode* x)
         if (lx <= PIPEA && rx >= PIPEA || lx <= PIPEB && rx >= PIPEB || lx <= PIPEC && rx >= PIPEC)
             if (CheckAttackB(x, hUp) && !CheckCollision(x, hUp)) {
                 x->e.eMoveUp();
-                NodeFree(x, hMid);
+                eNodeDelete(x, hMid);
                 AddList(x, hUp);
                 return true;
             }
         if (lx <= PIPED && rx >= PIPED || lx <= PIPEE && rx >= PIPEE)
             if (CheckAttackB(x, hDown) && !CheckCollision(x, hDown)) {
                 x->e.eMoveDown();
-                NodeFree(x, hMid);
+                eNodeDelete(x, hMid);
                 AddList(x, hDown);
                 return true;
             }
@@ -487,7 +596,7 @@ bool CheckUpDown(eNode* x)
         if ((!player && (lx <= PIPEA && rx >= PIPEA)) || (player && (lx <= PIPEC && rx >= PIPEC)) || (lx <= PIPEB && rx >= PIPEB)) {
             if (CheckAttackB(x, hMid) && !CheckCollision(x, hMid)) {
                 x->e.eMoveDown();
-                NodeFree(x, hUp);
+                eNodeDelete(x, hUp);
                 AddList(x, hMid);
                 return true;
             }
@@ -495,7 +604,7 @@ bool CheckUpDown(eNode* x)
         else if ((!player && lx <= PIPEC && rx >= PIPEC) || (player && lx <= PIPEA && rx >= PIPEA)) {
             if (!CheckCollision(x, hMid)) {
                 x->e.eMoveDown();
-                NodeFree(x, hUp);
+                eNodeDelete(x, hUp);
                 AddList(x, hMid);
             }
             else
@@ -507,7 +616,7 @@ bool CheckUpDown(eNode* x)
         if ((!player && lx <= PIPED && rx >= PIPED) || (player && lx <= PIPEE && rx >= PIPEE)) {
             if (CheckAttackB(x, hMid) && !CheckCollision(x, hMid)) {
                 x->e.eMoveUp();
-                NodeFree(x, hDown);
+                eNodeDelete(x, hDown);
                 AddList(x, hMid);
                 return true;
             }
@@ -515,7 +624,7 @@ bool CheckUpDown(eNode* x)
         else if ((!player && lx <= PIPEE && rx >= PIPEE) || (player && lx <= PIPED && rx >= PIPED)) {
             if (!CheckCollision(x, hMid)) {
                 x->e.eMoveUp();
-                NodeFree(x, hDown);
+                eNodeDelete(x, hDown);
                 AddList(x, hMid);
             }
             else
@@ -526,26 +635,59 @@ bool CheckUpDown(eNode* x)
     return false;
 }
 
-void StatusAccount(eNode* &list)
+void StatusAccountE(eNode* &list)
 {
     eNode* now = NULL;
     for (auto i = list; i != NULL; i = i->ne)
     {
         if (now != NULL) {
-            NodeFree(now, list);
+            eNodeDelete(now, list);
+            eNodeFree(now);
             now = NULL;
         }
         if (!CheckAlive(i))
             now = i;
     }
-    if (now != NULL)
-        NodeFree(now, list);
+    if (now != NULL) {
+        eNodeDelete(now, list);
+        eNodeFree(now);
+    }
 }
 
-void AttackMove(eNode*& list)
+void StatusAccountW(wNode* &list)
+{
+    wNode* now = NULL;
+    for (auto i = list; i != NULL; i = i->ne)
+    {
+
+        i->w.cutTime();
+        if (now != NULL) {
+            wNodeDelete(now, list);
+            wNodeFree(now);
+            now = NULL;
+        }
+        if (i->w.getTime() < 0)
+            now = i;
+    }
+    if (now != NULL) {
+        wNodeDelete(now, list);
+        wNodeFree(now);
+    }
+}
+
+void AttackMove(eNode*& list, wNode*& listw)
 {
     for (auto i = list; i != NULL; i = i->ne)
     {
+        if (i->e.getType() == 8) {
+            Move(i);
+            wNode* wn = getFreewNode();
+            wn->w.setWeapon(6, i->e.getPlayer());
+            wn->w.setX(i->e.getLx() + 3 - 20);
+            AddwList(wn, listw);
+
+            continue;
+        }
         if (!CheckAttack(i)) {
             //i->e.setDir(0); // this will be done at the draw part
             i->e.resetAcount();
@@ -555,9 +697,98 @@ void AttackMove(eNode*& list)
     }
 }
 
+bool TakeEffect(wNode* wn, eNode* elist, wNode*& wlist)
+{
+    auto w = wn->w;
+    for (auto j = elist; j != NULL; j = j->ne)
+    {
+        auto& e = j->e;
+        if (e.getRx() < w.getLx() || e.getLx() > w.getRx())
+            continue;
+        int type = w.getType();
+        switch (type) {
+        case 1:
+            if (e.getPlayer() == w.getPlayer())
+                continue;
+            e.mdfLife(-w.getPower());
+            wNodeDelete(wn, wlist);
+            wNodeFree(wn);
+            return true; // the missile can only attack one entity
+        case 2:
+            e.mdfLife(-w.getPower());
+            return false; // the water can damage all the entity, no matter enemy or friend
+        case 3:
+            if (e.getPlayer() == w.getPlayer())
+                continue;
+            e.mdfRange(5);
+            return false;
+        case 4:
+            if (e.getPlayer() != w.getPlayer())
+                continue;
+            e.mdfLife(w.getPower());
+            return false;
+        case 5:
+            if (w.getTime() >= 240)
+                continue;
+            e.mdfLife(-w.getPower());
+            wNodeDelete(wn, wlist);
+            wNodeFree(wn);
+            return true;
+        case 6:
+            if (e.getPlayer() != w.getPlayer())
+                continue;
+            e.mdfArmor(w.getPower());
+            return false;
+        }
+    }
+    return false;
+}
+
+void EffectMove(wNode*& list, eNode* elist)
+{
+    for (auto i = list; i != NULL; i = i->ne)
+    {
+        i->w.addTcount();
+        if (i->w.getTcount() == i->w.getAspeed()) {
+            i->w.resetTcount();
+            if (TakeEffect(i, elist, list))
+                return;
+        }
+        if (i->w.getMspeed() != 0)
+            if (i->w.getPlayer() == 0)
+                i->w.wMoveX(i->w.getMspeed(), 1);
+            else
+                i->w.wMoveX(-i->w.getMspeed(), 1);
+    }
+}
+
+void setcrope(int num, bool player, int x)
+{
+    if (cropw != NULL) {
+        wNodeFree(cropw);
+        cropw = NULL;
+    }
+
+    if (crope == NULL)
+        crope = getFreeeNode();
+    crope->e.setEntity(num, player, x);
+}
+
+void setcropw(int num, bool player)
+{
+    if (crope != NULL) {
+        eNodeFree(crope);
+        crope = NULL;
+    }
+    if (cropw == NULL)
+        cropw = getFreewNode();
+    cropw->w.setWeapon(num, player);
+}
+
 int main()
 {
     inititp();
+    inititw();
     // initgraph();
     nalloc();
     // initfreelist
@@ -580,20 +811,30 @@ int main()
         if (bKey[4]) {
             //test = true;
             if (!keyHoldSpace) {
-                if (crop != NULL) {
-                    if (crop->e.getRoad() == UPROAD && !CheckCollision(crop, hUp)) {
-                       AddList(crop, hUp);
-                       crop = NULL;
+                if (cropw != NULL) {
+                    int road = cropw->w.getRoad();
+                    if (road == UPROAD)
+                        AddwList(cropw, wUp);
+                    else if (road == MIDROAD)
+                        AddwList(cropw, wMid);
+                    else
+                        AddwList(cropw, wDown);
+                    cropw = NULL;
+                }
+                if (crope != NULL) {
+                    if (crope->e.getRoad() == UPROAD && !CheckCollision(crope, hUp)) {
+                       AddList(crope, hUp);
+                       crope = NULL;
                     }
-                    else if (crop->e.getRoad() == MIDROAD && !CheckCollision(crop, hMid)) {
+                    else if (crope->e.getRoad() == MIDROAD && !CheckCollision(crope, hMid)) {
                         //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
                         //test = true;
-                        AddList(crop, hMid);
-                        crop = NULL;
+                        AddList(crope, hMid);
+                        crope = NULL;
                     }
-                    else if (crop->e.getRoad() == DOWNROAD && !CheckCollision(crop, hDown)) {
-                        AddList(crop, hDown);
-                        crop = NULL;
+                    else if (crope->e.getRoad() == DOWNROAD && !CheckCollision(crope, hDown)) {
+                        AddList(crope, hDown);
+                        crope = NULL;
                     }
                 }
             }
@@ -602,37 +843,38 @@ int main()
         else
             keyHoldSpace = false;
 
-        if (crop != NULL && bKey[14]) {
-            crop = NULL;
+        if (crope != NULL && bKey[14]) {
+            eNodeFree(crope);
+            crope = NULL;
+        }
+        if (cropw != NULL && bKey[14]) {
+            wNodeFree(cropw);
+            cropw = NULL;
         }
 
-        if (crop == NULL && bKey[5]) {
-            crop = getFreeNode();
-            crop->e.setEntity(10, 0, -1);
+        if (bKey[5]) {
+            //setcropw(6, 1);
+            setcrope(8, 1, 150);
         }
-        if (crop == NULL && bKey[6]) {
-            crop = getFreeNode();
-            crop->e.setEntity(1, 1, 150);
+        if (bKey[6]) {
+            setcrope(1, 1, 150);
         }
-        if (crop == NULL && bKey[7]) {
-            crop = getFreeNode();
-            crop->e.setEntity(3, 0, -1);
+        if (bKey[7]) {
+            setcrope(3, 0, -1);
         }
-        if (crop == NULL && bKey[8]) {
-            crop = getFreeNode();
-            crop->e.setEntity(4, 1, -1);
+        if (bKey[8]) {
+            setcrope(4, 1, -1);
         }
-        if (crop == NULL && bKey[9]) {
-            crop = getFreeNode();
-            crop->e.setEntity(5, 1, -1);
+        if (bKey[9]) {
+            setcrope(5, 1, -1);
         }
-        if (hDown != NULL)
-            wsprintf(&screen[16 * nScreenWidth + 30], L"%d", hDown->e.getAcount());
+        if (wMid != NULL)
+            wsprintf(&screen[16 * nScreenWidth + 30], L"%d", wMid->w.getTime());
         //if (hDown != NULL && hDown->e.getState() == ATTACK) {
         //    wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
         //}
         /*if (test)
-            wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");*/
+            wsprintf(&screen[10 * nScreenWidth + 10], L"%d", wMid->w.getRx());*/
         /*int cnt = 0;
         for (auto i = hMid; i != NULL; i = i->ne) {
             cnt++;
@@ -641,16 +883,16 @@ int main()
 
         
 
-        if (crop != NULL) {
+        if (crope != NULL) {
             if (bKey[0])
-                crop->e.eMoveX(-1, 0);
+                crope->e.eMoveX(-1, 0);
 
             if (bKey[1])
-                crop->e.eMoveX(1, 0);
+                crope->e.eMoveX(1, 0);
 
             if (bKey[2]) {
                 if (!keyHoldW)
-                    crop->e.eModifyY(1);
+                    crope->e.eModifyY(1);
                 keyHoldW = true;
             }
             else
@@ -658,7 +900,44 @@ int main()
 
             if (bKey[3]) {
                 if (!keyHoldS)
-                    crop->e.eModifyY(0);
+                    crope->e.eModifyY(0);
+                keyHoldS = true;
+            }
+            else
+                keyHoldS = false;
+        }
+        if (cropw != NULL) {
+            if (bKey[0] && cropw->w.getType() != 1) {
+                if (!keyHoldA)
+                    cropw->w.wMoveX(-1, 0);
+                else
+                    cropw->w.wMoveX(-2, 0);
+                keyHoldA = true;
+            }
+            else
+                keyHoldA = false;
+
+            if (bKey[1] && cropw->w.getType() != 1) {
+                if (!keyHoldD)
+                    cropw->w.wMoveX(1, 0);
+                else
+                    cropw->w.wMoveX(2, 0);
+                keyHoldD = true;
+            }
+            else
+                keyHoldD = false;
+
+            if (bKey[2]) {
+                if (!keyHoldW)
+                    cropw->w.wMoveY(1);
+                keyHoldW = true;
+            }
+            else
+                keyHoldW = false;
+
+            if (bKey[3]) {
+                if (!keyHoldS)
+                    cropw->w.wMoveY(0);
                 keyHoldS = true;
             }
             else
@@ -667,14 +946,21 @@ int main()
 
         // Game Logic
         // Check attack
-        AttackMove(hUp);
-        AttackMove(hMid);
-        AttackMove(hDown);
+        EffectMove(wUp, hUp);
+        EffectMove(wMid, hMid);
+        EffectMove(wDown, hDown); // Keep Order!
+        AttackMove(hUp, wUp);
+        AttackMove(hMid, wMid);
+        AttackMove(hDown, wDown);
+
 
         // Check invalid entities and delete
-        StatusAccount(hUp);
-        StatusAccount(hMid);
-        StatusAccount(hDown);
+        StatusAccountE(hUp);
+        StatusAccountE(hMid);
+        StatusAccountE(hDown);
+        StatusAccountW(wUp);
+        StatusAccountW(wMid);
+        StatusAccountW(wDown);
 
         // Display to player
         for (int k = 0; k < 16; k++)
@@ -682,6 +968,7 @@ int main()
 
 
         SetEntity(screen);
+        SetWeapon(screen);
 
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0,0 }, &dwBytesWritten);
     }
