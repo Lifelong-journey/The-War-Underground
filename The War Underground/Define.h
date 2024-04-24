@@ -28,4 +28,6 @@
 #define nScreenWidth 179
 #define nScreenHeight 52
 
+#define CARDLEN 15
+
 #endif

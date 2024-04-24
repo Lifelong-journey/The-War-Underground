@@ -8,6 +8,7 @@
 #include "Define.h"
 #include "Entity.h"
 #include "Weapon.h"
+#include "Card.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ struct eNode* hFree = NULL, * hUp = NULL, * hMid = NULL, * hDown = NULL;
 struct wNode* wFree = NULL, * wUp = NULL, * wMid = NULL, * wDown = NULL;
 struct eNode* crope = NULL;
 struct wNode* cropw = NULL;
+Card card[12];
 
 bool test = false;
 
@@ -46,6 +48,11 @@ void nalloc()
             wFree->pre = wp;
         wFree = wp;
     }
+}
+
+void initcard()
+{
+    card[1].setCard(0, 10, 10);
 }
 
 
@@ -91,7 +98,6 @@ void SetScene(wchar_t* screen)
         screen[43 * nScreenWidth + i] = L'*';
         screen[44 * nScreenWidth + i] = L'=';
     }
-
     for (int i = 0; i < nScreenHeight; i++)
     {
         screen[i * nScreenWidth] = L'=';
@@ -107,6 +113,12 @@ void SetScene(wchar_t* screen)
     return;
 }
 
+void SetSceneB(wchar_t* screen)
+{
+
+
+    return;
+}
 
 
 void SetEntity(wchar_t* screen)
@@ -144,6 +156,11 @@ void SetWeapon(wchar_t* screen)
     if (cropw != NULL) {
         cropw->w.wDraw(screen);
     }
+}
+
+void SetCard(wchar_t* screen)
+{
+    card[1].cDraw(screen);
 }
 
 void Attack(eNode* source, eNode* target)
@@ -789,6 +806,7 @@ int main()
 {
     inititp();
     inititw();
+    initcard();
     // initgraph();
     nalloc();
     // initfreelist
@@ -799,6 +817,15 @@ int main()
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
     DWORD dwBytesWritten = 0;
+    //while (1)
+    //{
+    //    for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
+    //        screen[i] = L' ';
+    //    SetSceneB(screen);
+    //    this_thread::sleep_for(50ms);
+    //    nSpeedCounter += 10;
+    //    
+    //}
     while (1)
     {
         for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
@@ -966,7 +993,7 @@ int main()
         for (int k = 0; k < 16; k++)
             bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\x36\x37\x38\x39\xc0"[k]))) != 0; // left, right, up, down, space, 1, 2, ~
 
-
+        SetCard(screen);
         SetEntity(screen);
         SetWeapon(screen);
 

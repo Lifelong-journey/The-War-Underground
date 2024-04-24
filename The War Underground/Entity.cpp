@@ -24,8 +24,8 @@ void inititp()
 	itp[1] = { 1, 5, 1, 5, 50, 0, 10, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3, 0, 0 }; // soldier
 	itp[2] = { 2, 25, 2, 15, 300, 0, 30, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4, 0, 0 }; // tank
 	itp[3] = { 3, 50, 2, 30, 150, 0, 50, MOVE, NORMAL, MIDROAD, 15, 11, 25, 4, 0, 0 }; // bazooka
-	itp[4] = { 4, 20, 0, 10, 200, 0, 15, MOVE, NORMAL, MIDROAD, 15, 10, 24, 3, 0, 0 }; // bunker
-	itp[5] = { 5, 0, 0, 0, 500, 0, 0, MOVE, NORMAL, MIDROAD, 15, 12, 26, 4, 0, 0 }; // plant
+	itp[4] = { 4, 20, 0, 10, 200, 0, 15, MOVE, NORMAL, MIDROAD, 15, 11, 25, 3, 0, 0 }; // bunker
+	itp[5] = { 5, 0, 0, 0, 500, 0, 0, MOVE, NORMAL, MIDROAD, 15, 13, 27, 4, 0, 0 }; // plant
 	itp[6] = { 6, 200, 1, 5, 50, 0, 0, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // bomber
 	itp[7] = { 7, 150, 3, 50, 200, 0, 70, MOVE, NORMAL, MIDROAD, 15, 12, 26, 4, 0, 0 }; // heavy artillery
 	itp[8] = { 8, 0, 1, 10, 75, 0, 30, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // guard
@@ -153,23 +153,23 @@ void Entity::eDraw(wchar_t* screen)
 		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L"[%d|%d]", life, itp[3].life);
 		break;
 	case 4:
-		wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  _    _  ");
-		wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" / \\__/ \\ ");
-		wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"/ #|  |# \\");
+		wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  _     _  ");
+		wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" / \\___/ \\ ");
+		wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"/ #|   |# \\");
 		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx + 1], L"[%d|%d]", life, itp[4].life);
 		break;
 	case 5:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"       $$$  ");
-			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"       ___  ");
-			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" _____/. .\\ ");
-			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"|[]00/  .  \\");
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"        $$$  ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"        ___  ");
+			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" ______/. .\\ ");
+			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"|[]00 /  .  \\");
 		}
 		else {
 			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  $$$       ");
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  ___       ");
-			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" /. .\\_____ ");
-			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"/  .  \\00[]|");
+			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" /. .\\______ ");
+			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"/  .  \\ 00[]|");
 		}
 		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx + 2], L"[%d|%d]", life, itp[5].life);
 		break;
