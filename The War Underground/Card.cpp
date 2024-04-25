@@ -6,8 +6,11 @@
 
 using namespace std;
 
+const int CardMineral[] = { 0, 2, 5, 5, 4, 6, 3, 6, 3, 5, 4, 3, 4, 4, 3, 2 };
+
 void Card::setCard(int ply, int tp, int l)
 {
+	mineral = CardMineral[tp];
 	player = ply;
 	type = tp;
 	lx = l;
@@ -170,67 +173,76 @@ void Card::cDraw(wchar_t* screen)
 		break;
 	case 11:
 		if (!player) {
-			wsprintf(&screen[2 * nScreenWidth + lx + 4], L">");
-			wsprintf(&screen[3 * nScreenWidth + lx], L"-<-=====>>>>>");
-			wsprintf(&screen[4 * nScreenWidth + lx + 4], L">");
+			wsprintf(&screen[2 * nScreenWidth + lx + 5], L">");
+			wsprintf(&screen[3 * nScreenWidth + lx + 2], L"-<-=====>>");
+			wsprintf(&screen[4 * nScreenWidth + lx + 5], L">");
 		}
 		else {
 			wsprintf(&screen[48 * nScreenWidth + lx + 8], L"<");
-			wsprintf(&screen[49 * nScreenWidth + lx], L"<<<<<=====->-");
+			wsprintf(&screen[49 * nScreenWidth + lx + 2], L"<<=====->-");
 			wsprintf(&screen[50 * nScreenWidth + lx + 8], L"<");
 		}
 		break;
 	case 12:
 		if (!player) {
-			for (int i = lx; i + 3 <= rx; i += 3)
-			{
-				wsprintf(&screen[1 * nScreenWidth + lx + 3], L" _   _ ");
-				wsprintf(&screen[2 * nScreenWidth + lx + 3], L"\\ / \\ /");
-				wsprintf(&screen[3 * nScreenWidth + lx + 3], L"   O   ");
-				wsprintf(&screen[4 * nScreenWidth + lx + 3], L"  /_\\  ");
-			}
+			wsprintf(&screen[1 * nScreenWidth + lx + 4], L" _   _ ");
+			wsprintf(&screen[2 * nScreenWidth + lx + 4], L"\\ / \\ /");
+			wsprintf(&screen[3 * nScreenWidth + lx + 4], L"   O   ");
+			wsprintf(&screen[4 * nScreenWidth + lx + 4], L"  /_\\  ");
 		}
 		else {
-			for (int i = lx; i + 3 <= rx; i += 3)
-			{
-				wsprintf(&screen[47 * nScreenWidth + lx + 3], L" _   _ ");
-				wsprintf(&screen[48 * nScreenWidth + lx + 3], L"\\ / \\ /");
-				wsprintf(&screen[49 * nScreenWidth + lx + 3], L"   O   ");
-				wsprintf(&screen[50 * nScreenWidth + lx + 3], L"  /_\\  ");
-			}
+			wsprintf(&screen[47 * nScreenWidth + lx + 4], L" _   _ ");
+			wsprintf(&screen[48 * nScreenWidth + lx + 4], L"\\ / \\ /");
+			wsprintf(&screen[49 * nScreenWidth + lx + 4], L"   O   ");
+			wsprintf(&screen[50 * nScreenWidth + lx + 4], L"  /_\\  ");
 		}
 		break;
 	case 13:
-		for (int i = lx; i + 3 <= rx; i += 3)
-		{
-			wsprintf(&screen[1 * nScreenWidth + lx + 3], L" _   _ ");
-			wsprintf(&screen[2 * nScreenWidth + lx + 3], L"\ / \ /");
-			wsprintf(&screen[3 * nScreenWidth + lx + 3], L"   O   ");
-			wsprintf(&screen[4 * nScreenWidth + lx + 3], L"  /_\  ");
+		if (!player) {
+			wsprintf(&screen[2 * nScreenWidth + lx + 3], L"   * *   ");
+			wsprintf(&screen[3 * nScreenWidth + lx + 3], L"( (EMP) )");
+			wsprintf(&screen[4 * nScreenWidth + lx + 3], L"   * *   ");
+		}
+		else {
+			wsprintf(&screen[48 * nScreenWidth + lx + 3], L"   * *   ");
+			wsprintf(&screen[49 * nScreenWidth + lx + 3], L"( (EMP) )");
+			wsprintf(&screen[50 * nScreenWidth + lx + 3], L"   * *   ");
 		}
 		break;
+
 	case 14:
-		for (int i = lx; i + 3 <= rx; i += 3)
-		{
-			screen[(rNum[road] - 7) * nScreenWidth + i] = L'+';
-			screen[(rNum[road] - 4) * nScreenWidth + i] = L'+';
-			screen[(rNum[road] - 1) * nScreenWidth + i] = L'+';
+		if (!player) {
+			wsprintf(&screen[2 * nScreenWidth + lx + 2], L"=\\       /=");
+			wsprintf(&screen[3 * nScreenWidth + lx + 2], L" ||=====|| ");
+			wsprintf(&screen[4 * nScreenWidth + lx + 2], L"=/       \\=");
+		}
+		else {
+			wsprintf(&screen[48 * nScreenWidth + lx + 2], L"=\\       /=");
+			wsprintf(&screen[49 * nScreenWidth + lx + 2], L" ||=====|| ");
+			wsprintf(&screen[50 * nScreenWidth + lx + 2], L"=/       \\=");
 		}
 		break;
+
 	case 15:
-		if (time >= 240) {
-			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx + 1], L"_?_");
-			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"[   ]");
+		if (!player) {
+			wsprintf(&screen[2 * nScreenWidth + lx + 6], L"_?_");
+			wsprintf(&screen[3 * nScreenWidth + lx + 5], L"[   ]");
 		}
-		break;
-	case 16:
-		for (int i = 1; i <= 3; i++)
-		{
-			screen[(rNum[road] - i) * nScreenWidth + lx] = L'{';
-			screen[(rNum[road] - i) * nScreenWidth + rx] = L'}';
+		else {
+			wsprintf(&screen[48 * nScreenWidth + lx + 6], L"_?_");
+			wsprintf(&screen[49 * nScreenWidth + lx + 5], L"[   ]");
 		}
 		break;
 	}
+	if (!player) {
+		wsprintf(&screen[nScreenWidth + lx + 1], L"%d", mineral);
+		wsprintf(&screen[nScreenWidth + lx + 13], L"%d", mineral);
+	}
+	else {
+		wsprintf(&screen[47 * nScreenWidth + lx + 1], L"%d", mineral);
+		wsprintf(&screen[47 * nScreenWidth + lx + 13], L"%d", mineral);
+	}
+
 	if (player == 0) {
 		for (int i = lx; i <= rx; i++)
 		{
@@ -256,9 +268,42 @@ void Card::cDraw(wchar_t* screen)
 		}
 	}
 }
+
+int Card::getPlayer()
+{
+	return player;
+}
+
+int Card::getType()
+{
+	return type;
+}
+
+int Card::getLx()
+{
+	return lx;
+}
+
+int Card::getMineral()
+{
+	return mineral;
+}
 /*
    _   _ 
   \ / \ /
      O   
     /_\  
-*/
+
+
+	   ||   
+	<==||==>
+	   ||   
+       ||   
+
+	  =\       /=
+	   ||=====|| 
+	  =/       \=
+	       * *   
+	    ( (EMP) )
+		   * *
+*/  

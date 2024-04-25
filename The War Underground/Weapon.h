@@ -32,7 +32,7 @@ public:
 	void wDraw(wchar_t*);
 	void wMoveX(int, bool);
 	void wMoveY(bool);
-	void setWeapon(int, bool);
+	void setWeapon(int, bool, int);
 	void cutTime();
 	void resetTcount();
 	void setX(int);

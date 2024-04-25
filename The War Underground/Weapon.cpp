@@ -16,7 +16,7 @@ struct InitWeapon {
 
 void inititw()
 {
-	itw[1] = { 1, 250, INF, 1, 2, MIDROAD, 15, 13, 27, 0 }; // missile
+	itw[1] = { 1, 250, INF, 1, 2, MIDROAD, 15, 10, 24, 0 }; // missile
 	itw[2] = { 2, 15, 150, 20, 0, MIDROAD, 15, 20, 34, 0 }; // water
 	itw[3] = { 3, 0, 50, 1, 0, MIDROAD, 15, 15, 29, 0 }; // emp
 	itw[4] = { 4, 20, 100, 20, 0, MIDROAD, 15, 20, 34, 0 }; // nanobots
@@ -39,7 +39,7 @@ Weapon::Weapon(int num, bool ply)
 	tcount = itw[num].tcount;
 }
 
-void Weapon::setWeapon(int num, bool ply)
+void Weapon::setWeapon(int num, bool ply, int x)
 {
 	player = ply;
 	type = itw[num].type;
@@ -48,9 +48,9 @@ void Weapon::setWeapon(int num, bool ply)
 	aspeed = itw[num].aspeed;
 	mspeed = itw[num].mspeed;
 	road = itw[num].road;
-	lx = itw[num].lx;
+	lx = x;
 	len = itw[num].len;
-	rx = itw[num].rx;
+	rx = lx + len - 1;
 	tcount = itw[num].tcount;
 }
 
@@ -59,14 +59,14 @@ void Weapon::wDraw(wchar_t* screen)
 	switch (type) {
 		case 1:
 			if (!player) {
-				wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx + 4], L">");
-				wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"-<-=====>>>>>");
-				wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx + 4], L">");
+				wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx + 3], L">");
+				wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"-<-=====>>");
+				wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx + 3], L">");
 			}
 			else {
-				wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx + 8], L"<");
-				wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"<<<<<=====->-");
-				wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx + 8], L"<");
+				wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx + 6], L"<");
+				wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"<<=====->-");
+				wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx + 6], L"<");
 			}
 			break;
 		case 2:

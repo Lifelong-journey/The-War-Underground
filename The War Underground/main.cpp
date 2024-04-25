@@ -4,6 +4,10 @@
 #include <cstring>
 #include <Windows.h>
 #include <thread>
+#include <random>
+#include <ctime>
+#include <unordered_map>
+#include <queue>
 
 #include "Define.h"
 #include "Entity.h"
@@ -13,17 +17,24 @@
 using namespace std;
 
 //Entity test;
-bool bKey[16]; // keyboard press
-//int rNum[4] = { 17, 30, 42 };
-//Entity test;
+bool bKey[22]; // keyboard press
+
+default_random_engine e(unsigned int(time(0)));
+
 bool keyHoldW = false, keyHoldS = false, keyHoldSpace = false, keyHoldA = false, keyHoldD = false;
+bool keyHoldJ = false, keyHoldL = false, keyHoldEnter = false, keyHoldI = false, keyHoldK = false;
 int nSpeedCounter = 0;
 wchar_t* screen = new wchar_t[nScreenWidth * nScreenHeight];
 struct eNode* hFree = NULL, * hUp = NULL, * hMid = NULL, * hDown = NULL;
 struct wNode* wFree = NULL, * wUp = NULL, * wMid = NULL, * wDown = NULL;
-struct eNode* crope = NULL;
-struct wNode* cropw = NULL;
+struct eNode* lcrope = NULL, * rcrope = NULL;
+struct wNode* lcropw = NULL, * rcropw = NULL;
+int lcropc = 0, rcropc = 0;
+int lMineral = 6, rMineral = 6;
+int lnem = 0, rnem = 0;
 Card card[12];
+unordered_map<int, Card> lmp, rmp;
+queue<int, Card> lq, rq;
 
 bool test = false;
 
@@ -52,7 +63,10 @@ void nalloc()
 
 void initcard()
 {
-    card[1].setCard(0, 10, 10);
+    for (int i = 1; i <= 5; i++)
+        card[i].setCard(0, e() % 15 + 1, 40 + (i - 1) * 20);
+    for (int i = 6; i <= 10; i++)
+        card[i].setCard(1, e() % 15 + 1, 40 + (i - 6) * 20);
 }
 
 
@@ -110,13 +124,18 @@ void SetScene(wchar_t* screen)
     PrintPipe(17, PIPEC - 2);
     PrintPipe(30, PIPED - 2);
     PrintPipe(30, PIPEE - 2);
+    wsprintf(&screen[nScreenWidth + 10], L"%d", lMineral);
+    wsprintf(&screen[47 * nScreenWidth + 10], L"%d", rMineral);
     return;
 }
 
 void SetSceneB(wchar_t* screen)
 {
-
-
+    for (int i = 0; i < nScreenWidth; i++)
+    {
+        screen[6 * nScreenWidth + i] = L'-';
+        screen[45 * nScreenWidth + i] = L'-';
+    }
     return;
 }
 
@@ -138,9 +157,12 @@ void SetEntity(wchar_t* screen)
         i->e.resetData();
     }
 
-    if (crope != NULL) {
+    if (lcrope != NULL) {
         //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
-        crope->e.eDraw(screen);
+        lcrope->e.eDraw(screen);
+    }
+    if (rcrope != NULL) {
+        rcrope->e.eDraw(screen);
     }
 
     return;
@@ -153,14 +175,18 @@ void SetWeapon(wchar_t* screen)
         i->w.wDraw(screen);
     for (auto i = wDown; i != NULL; i = i->ne)
         i->w.wDraw(screen);
-    if (cropw != NULL) {
-        cropw->w.wDraw(screen);
+    if (lcropw != NULL) {
+        lcropw->w.wDraw(screen);
+    }
+    if (rcropw != NULL) {
+        rcropw->w.wDraw(screen);
     }
 }
 
 void SetCard(wchar_t* screen)
 {
-    card[1].cDraw(screen);
+    for (int i = 1; i <= 10; i++)
+        card[i].cDraw(screen);
 }
 
 void Attack(eNode* source, eNode* target)
@@ -699,10 +725,8 @@ void AttackMove(eNode*& list, wNode*& listw)
         if (i->e.getType() == 8) {
             Move(i);
             wNode* wn = getFreewNode();
-            wn->w.setWeapon(6, i->e.getPlayer());
-            wn->w.setX(i->e.getLx() + 3 - 20);
+            wn->w.setWeapon(6, i->e.getPlayer(), i->e.getLx() + 3 - 20);
             AddwList(wn, listw);
-
             continue;
         }
         if (!CheckAttack(i)) {
@@ -779,27 +803,51 @@ void EffectMove(wNode*& list, eNode* elist)
     }
 }
 
-void setcrope(int num, bool player, int x)
+void setlcrope(int num, bool player, int x)
 {
-    if (cropw != NULL) {
-        wNodeFree(cropw);
-        cropw = NULL;
+    if (lcropw != NULL) {
+        wNodeFree(lcropw);
+        lcropw = NULL;
     }
 
-    if (crope == NULL)
-        crope = getFreeeNode();
-    crope->e.setEntity(num, player, x);
+    if (lcrope == NULL)
+        lcrope = getFreeeNode();
+    lcrope->e.setEntity(num, player, x);
 }
 
-void setcropw(int num, bool player)
+void setrcrope(int num, bool player, int x)
 {
-    if (crope != NULL) {
-        eNodeFree(crope);
-        crope = NULL;
+    if (rcropw != NULL) {
+        wNodeFree(rcropw);
+        rcropw = NULL;
     }
-    if (cropw == NULL)
-        cropw = getFreewNode();
-    cropw->w.setWeapon(num, player);
+
+    if (rcrope == NULL)
+        rcrope = getFreeeNode();
+    rcrope->e.setEntity(num, player, x);
+}
+
+
+void setrcropw(int num, bool player, int x)
+{
+    if (rcrope != NULL) {
+        eNodeFree(rcrope);
+        rcrope = NULL;
+    }
+    if (rcropw == NULL)
+        rcropw = getFreewNode();
+    rcropw->w.setWeapon(num, player, x);
+}
+
+void setlcropw(int num, bool player, int x)
+{
+    if (lcrope != NULL) {
+        eNodeFree(lcrope);
+        lcrope = NULL;
+    }
+    if (lcropw == NULL)
+        lcropw = getFreewNode();
+    lcropw->w.setWeapon(num, player, x);
 }
 
 int main()
@@ -817,15 +865,15 @@ int main()
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
     DWORD dwBytesWritten = 0;
-    //while (1)
-    //{
-    //    for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
-    //        screen[i] = L' ';
-    //    SetSceneB(screen);
-    //    this_thread::sleep_for(50ms);
-    //    nSpeedCounter += 10;
-    //    
-    //}
+    while (1)
+    {
+        for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
+            screen[i] = L' ';
+        SetSceneB(screen);
+        this_thread::sleep_for(50ms);
+        nSpeedCounter += 10;
+        
+    }
     while (1)
     {
         for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
@@ -834,69 +882,148 @@ int main()
         // Timing
         this_thread::sleep_for(50ms);
         nSpeedCounter += 10;
+        lnem = max(0, lnem - 1);
+        rnem = max(0, rnem - 1);
+        if (nSpeedCounter % 150 == 0) {
+            lMineral = min(10, lMineral + 1);
+            rMineral = min(10, rMineral + 1);
+        }
         // Input
         if (bKey[4]) {
-            //test = true;
-            if (!keyHoldSpace) {
-                if (cropw != NULL) {
-                    int road = cropw->w.getRoad();
-                    if (road == UPROAD)
-                        AddwList(cropw, wUp);
-                    else if (road == MIDROAD)
-                        AddwList(cropw, wMid);
-                    else
-                        AddwList(cropw, wDown);
-                    cropw = NULL;
-                }
-                if (crope != NULL) {
-                    if (crope->e.getRoad() == UPROAD && !CheckCollision(crope, hUp)) {
-                       AddList(crope, hUp);
-                       crope = NULL;
+            if (card[lcropc].getMineral() > lMineral) {
+                lnem = 50;
+            }
+            else {
+                lMineral -= card[lcropc].getMineral();
+                int x = card[lcropc].getLx();
+                card[lcropc].setCard(0, e() % 15 + 1, x);
+                lcropc = 0;
+                if (!keyHoldSpace) {
+                    if (lcropw != NULL) {
+                        int road = lcropw->w.getRoad();
+                        if (road == UPROAD)
+                           AddwList(lcropw, wUp);
+                        else if (road == MIDROAD)
+                            AddwList(lcropw, wMid);
+                        else
+                            AddwList(lcropw, wDown);
+                        lcropw = NULL;
                     }
-                    else if (crope->e.getRoad() == MIDROAD && !CheckCollision(crope, hMid)) {
-                        //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
-                        //test = true;
-                        AddList(crope, hMid);
-                        crope = NULL;
-                    }
-                    else if (crope->e.getRoad() == DOWNROAD && !CheckCollision(crope, hDown)) {
-                        AddList(crope, hDown);
-                        crope = NULL;
+                    if (lcrope != NULL) {
+                        if (lcrope->e.getRoad() == UPROAD && !CheckCollision(lcrope, hUp)) {
+                           AddList(lcrope, hUp);
+                           lcrope = NULL;
+                        }
+                        else if (lcrope->e.getRoad() == MIDROAD && !CheckCollision(lcrope, hMid)) {
+                            //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
+                            //test = true;
+                            AddList(lcrope, hMid);
+                            lcrope = NULL;
+                        }
+                        else if (lcrope->e.getRoad() == DOWNROAD && !CheckCollision(lcrope, hDown)) {
+                            AddList(lcrope, hDown);
+                            lcrope = NULL;
+                        }
                     }
                 }
             }
+            
             keyHoldSpace = true;   
         }
         else
             keyHoldSpace = false;
 
-        if (crope != NULL && bKey[14]) {
-            eNodeFree(crope);
-            crope = NULL;
-        }
-        if (cropw != NULL && bKey[14]) {
-            wNodeFree(cropw);
-            cropw = NULL;
-        }
+        if (bKey[15]) {
+            if (card[rcropc].getMineral() > rMineral) {
+                rnem = 50;
+            }
+            else {
+                rMineral -= card[rcropc].getMineral();
+                int x = card[rcropc].getLx();
+                card[rcropc].setCard(1, e() % 15 + 1, x);
+                rcropc = 0;
+                //test = true;
+                if (!keyHoldEnter) {
+                    if (rcropw != NULL) {
+                        int road = rcropw->w.getRoad();
+                        if (road == UPROAD)
+                            AddwList(rcropw, wUp);
+                        else if (road == MIDROAD)
+                            AddwList(rcropw, wMid);
+                        else
+                            AddwList(rcropw, wDown);
+                        rcropw = NULL;
+                    }
+                    if (rcrope != NULL) {
+                        if (rcrope->e.getRoad() == UPROAD && !CheckCollision(rcrope, hUp)) {
+                            AddList(rcrope, hUp);
+                            rcrope = NULL;
+                        }
+                        else if (rcrope->e.getRoad() == MIDROAD && !CheckCollision(rcrope, hMid)) {
+                            //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
+                            //test = true;
+                            AddList(rcrope, hMid);
+                            rcrope = NULL;
+                        }
+                        else if (rcrope->e.getRoad() == DOWNROAD && !CheckCollision(rcrope, hDown)) {
+                            AddList(rcrope, hDown);
+                            rcrope = NULL;
+                        }
+                    }
+                }
+            }
 
-        if (bKey[5]) {
-            //setcropw(6, 1);
-            setcrope(8, 1, 150);
+            keyHoldEnter = true;
         }
-        if (bKey[6]) {
-            setcrope(1, 1, 150);
+        else
+            keyHoldEnter = false;
+
+        if (lcrope != NULL && bKey[10]) {
+            lcropc = 0;
+            eNodeFree(lcrope);
+            lcrope = NULL;
         }
-        if (bKey[7]) {
-            setcrope(3, 0, -1);
+        if (lcropw != NULL && bKey[10]) {
+            lcropc = 0;
+            wNodeFree(lcropw);
+            lcropw = NULL;
         }
-        if (bKey[8]) {
-            setcrope(4, 1, -1);
+        if (rcrope != NULL && bKey[21]) {
+            rcropc = 0;
+            eNodeFree(rcrope);
+            rcrope = NULL;
         }
-        if (bKey[9]) {
-            setcrope(5, 1, -1);
+        if (rcropw != NULL && bKey[21]) {
+            rcropc = 0;
+            wNodeFree(rcropw);
+            rcropw = NULL;
         }
-        if (wMid != NULL)
-            wsprintf(&screen[16 * nScreenWidth + 30], L"%d", wMid->w.getTime());
+        for (int i = 5; i <= 9; i++)
+        {
+            if (bKey[i]) {
+                int type = card[i - 4].getType();
+                lcropc = i - 4;
+                if (type <= 10)
+                    setlcrope(type, 0, 20);
+                else
+                    setlcropw(type - 10, 0, 20);
+                break;
+            }
+        }
+        for (int i = 16; i <= 20; i++)
+        {
+            if (bKey[i]) {
+                rcropc = i - 10;
+                int type = card[i - 10].getType();
+                if (type <= 10)
+                    setrcrope(type, 1, 150);
+                else
+                    setrcropw(type - 10, 1, 150);
+                break;
+            }
+        }
+        //if (wMid != NULL)
+        //    wsprintf(&screen[16 * nScreenWidth + 30], L"%d", wMid->w.getTime());
         //if (hDown != NULL && hDown->e.getState() == ATTACK) {
         //    wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
         //}
@@ -910,16 +1037,16 @@ int main()
 
         
 
-        if (crope != NULL) {
+        if (lcrope != NULL) {
             if (bKey[0])
-                crope->e.eMoveX(-1, 0);
+                lcrope->e.eMoveX(-1, 0);
 
             if (bKey[1])
-                crope->e.eMoveX(1, 0);
+                lcrope->e.eMoveX(1, 0);
 
             if (bKey[2]) {
                 if (!keyHoldW)
-                    crope->e.eModifyY(1);
+                    lcrope->e.eModifyY(1);
                 keyHoldW = true;
             }
             else
@@ -927,28 +1054,28 @@ int main()
 
             if (bKey[3]) {
                 if (!keyHoldS)
-                    crope->e.eModifyY(0);
+                    lcrope->e.eModifyY(0);
                 keyHoldS = true;
             }
             else
                 keyHoldS = false;
         }
-        if (cropw != NULL) {
-            if (bKey[0] && cropw->w.getType() != 1) {
+        if (lcropw != NULL) {
+            if (bKey[0] && lcropw->w.getType() != 1) {
                 if (!keyHoldA)
-                    cropw->w.wMoveX(-1, 0);
+                    lcropw->w.wMoveX(-1, 0);
                 else
-                    cropw->w.wMoveX(-2, 0);
+                    lcropw->w.wMoveX(-2, 0);
                 keyHoldA = true;
             }
             else
                 keyHoldA = false;
 
-            if (bKey[1] && cropw->w.getType() != 1) {
+            if (bKey[1] && lcropw->w.getType() != 1) {
                 if (!keyHoldD)
-                    cropw->w.wMoveX(1, 0);
+                    lcropw->w.wMoveX(1, 0);
                 else
-                    cropw->w.wMoveX(2, 0);
+                    lcropw->w.wMoveX(2, 0);
                 keyHoldD = true;
             }
             else
@@ -956,7 +1083,7 @@ int main()
 
             if (bKey[2]) {
                 if (!keyHoldW)
-                    cropw->w.wMoveY(1);
+                    lcropw->w.wMoveY(1);
                 keyHoldW = true;
             }
             else
@@ -964,11 +1091,75 @@ int main()
 
             if (bKey[3]) {
                 if (!keyHoldS)
-                    cropw->w.wMoveY(0);
+                    lcropw->w.wMoveY(0);
                 keyHoldS = true;
             }
             else
                 keyHoldS = false;
+        }
+
+
+
+
+        if (rcrope != NULL) {
+            if (bKey[11])
+                rcrope->e.eMoveX(-1, 0);
+
+            if (bKey[12])
+                rcrope->e.eMoveX(1, 0);
+
+            if (bKey[13]) {
+                if (!keyHoldI)
+                    rcrope->e.eModifyY(1);
+                keyHoldI = true;
+            }
+            else
+                keyHoldI = false;
+
+            if (bKey[14]) {
+                if (!keyHoldK)
+                    rcrope->e.eModifyY(0);
+                keyHoldK = true;
+            }
+            else
+                keyHoldK = false;
+        }
+        if (rcropw != NULL) {
+            if (bKey[11] && rcropw->w.getType() != 1) {
+                if (!keyHoldJ)
+                    rcropw->w.wMoveX(-1, 0);
+                else
+                    rcropw->w.wMoveX(-2, 0);
+                keyHoldJ = true;
+            }
+            else
+                keyHoldJ = false;
+
+            if (bKey[12] && rcropw->w.getType() != 1) {
+                if (!keyHoldL)
+                    rcropw->w.wMoveX(1, 0);
+                else
+                    rcropw->w.wMoveX(2, 0);
+                keyHoldL = true;
+            }
+            else
+                keyHoldL = false;
+
+            if (bKey[13]) {
+                if (!keyHoldI)
+                    rcropw->w.wMoveY(1);
+                keyHoldI = true;
+            }
+            else
+                keyHoldI = false;
+
+            if (bKey[14]) {
+                if (!keyHoldK)
+                    rcropw->w.wMoveY(0);
+                keyHoldK = true;
+            }
+            else
+                keyHoldK = false;
         }
 
         // Game Logic
@@ -990,8 +1181,10 @@ int main()
         StatusAccountW(wDown);
 
         // Display to player
-        for (int k = 0; k < 16; k++)
-            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\x36\x37\x38\x39\xc0"[k]))) != 0; // left, right, up, down, space, 1, 2, ~
+        for (int k = 0; k < 22; k++)
+            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\xc0JLIK\x0D\x37\x38\x39\x30\xBD\x08"[k]))) != 0;
+/*        for (int k = 0; k < 16; k++)
+            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\x36\x37\x38\x39\xc0"[k]))) != 0;*/ // left, right, up, down, space, 1, 2, ~
 
         SetCard(screen);
         SetEntity(screen);
@@ -1001,3 +1194,9 @@ int main()
     }
     return 0;
 }
+
+/*
+
+
+
+*/
