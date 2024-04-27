@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const int CardMineral[] = { 0, 2, 5, 5, 4, 6, 3, 6, 3, 5, 4, 3, 4, 4, 3, 2 };
+
 
 void Card::setCard(int ply, int tp, int l)
 {
@@ -287,6 +287,227 @@ int Card::getLx()
 int Card::getMineral()
 {
 	return mineral;
+}
+
+void PrintCard(wchar_t* screen, int num, int player, int lx, int y)
+{
+	switch (num)
+	{
+	case 0:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L"       P    ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L" $    _|_   ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L" |  _|_0_|_ ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"/*\\| [] [] |");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L"    P       ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L"   _|_    $ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L" _|_0_|_  | ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"| [] [] |/*\\");
+		}
+		break;
+
+	case 1:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L"  o   ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"< H --");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L" / \\  ");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L"   o  ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"-- H >");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L"  / \\ ");
+		}
+		break;
+	case 2:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L"    ___ __ ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L" __/___\\__ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"/_________\\");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"o o o o o o");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L" __ ___    ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L" __/___\\__ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"/_________\\");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"o o o o o o");
+		}
+		break;
+	case 3:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L"  // // _  ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L" //_//_|_\\ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"|_________\\");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L" O      O  ");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L"  _ \\\\ \\\\  ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L" /_|_\\\\_\\\\ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"/_________|");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L" O      O  ");
+		}
+		break;
+	case 4:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L"  _     _  ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L" / \\___/ \\ ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"/ #|   |# \\");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L"  _     _  ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L" / \\___/ \\ ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"/ #|   |# \\");
+		}
+		break;
+	case 5:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 1], L"        $$$  ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 1], L"        ___  ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 1], L" ______/. .\\ ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 1], L"|[]00 /  .  \\");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 1], L"  $$$       ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 1], L"  ___       ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 1], L" /. .\\______ ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 1], L"/  .  \\ 00[]|");
+		}
+		break;
+	case 6:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 4], L"   (!) ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L" ___|_ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"|_____|");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L" o   o ");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 4], L" (!)   ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L" _|___ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"|_____|");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L" o   o ");
+		}
+		break;
+	case 7:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 2], L"  [_]======>");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L" /___\\___   ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"[--------)  ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L" O  OOOOO   ");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 1], L"<======[_]  ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 1], L"   ___/___\\ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 1], L"  (--------]");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 1], L"   OOOOO  O ");
+		}
+		break;
+	case 8:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 4], L"((*A*))");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L" __|__ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"|__+__|");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L"O     O");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 4], L"((*A*))");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L" __|__ ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"|__+__|");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L"O     O");
+		}
+
+		break;
+	case 9:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 3], L"    ==={-");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 3], L"_[]_||___");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 3], L"\\_______/");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 3], L" oo   oo ");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 3], L"-}===    ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 3], L"___||_[]_");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 3], L"\\_______/");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 3], L" oo   oo ");
+		}
+		break;
+	case 10:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L"  o   ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"[]H--=");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L" / \\  ");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L"   o  ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"=--H[]");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L"  / \\ ");
+		}
+		break;
+	case 11:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 5], L">");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"-<-=====>>");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 5], L">");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 8], L"<");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L"<<=====->-");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 8], L"<");
+		}
+		break;
+	case 12:
+		if (!player) {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 4], L" _   _ ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L"\\ / \\ /");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"   O   ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L"  /_\\  ");
+		}
+		else {
+			wsprintf(&screen[(y + 1) * nScreenWidth + lx + 4], L" _   _ ");
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 4], L"\\ / \\ /");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 4], L"   O   ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 4], L"  /_\\  ");
+		}
+		break;
+	case 13:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 3], L"   * *   ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 3], L"( (EMP) )");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 3], L"   * *   ");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 3], L"   * *   ");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 3], L"( (EMP) )");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 3], L"   * *   ");
+		}
+		break;
+
+	case 14:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L"=\\       /=");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L" ||=====|| ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"=/       \\=");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 2], L"=\\       /=");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 2], L" ||=====|| ");
+			wsprintf(&screen[(y + 4) * nScreenWidth + lx + 2], L"=/       \\=");
+		}
+		break;
+
+	case 15:
+		if (!player) {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 6], L"_?_");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 5], L"[   ]");
+		}
+		else {
+			wsprintf(&screen[(y + 2) * nScreenWidth + lx + 6], L"_?_");
+			wsprintf(&screen[(y + 3) * nScreenWidth + lx + 5], L"[   ]");
+		}
+		break;
+	}
+	wsprintf(&screen[(y + 1) * nScreenWidth + lx + 1], L"%d", CardMineral[num]);
+	wsprintf(&screen[(y + 1) * nScreenWidth + lx + 13], L"%d", CardMineral[num]);
 }
 /*
    _   _ 
