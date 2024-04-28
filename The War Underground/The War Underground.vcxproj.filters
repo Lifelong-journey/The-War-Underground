@@ -27,6 +27,9 @@
     <ClCompile Include="Card.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Timecount.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -39,6 +42,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Card.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Timecount.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

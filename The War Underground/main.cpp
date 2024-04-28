@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "Weapon.h"
 #include "Card.h"
+#include "Timecount.h"
 
 using namespace std;
 
@@ -34,6 +35,8 @@ int lnem = 0, rnem = 0;
 Card card[12];
 int lq[12], rq[12];
 int lhh = 0, rhh = 0;
+Entity* lbase = NULL, * rbase = NULL;
+bool Goliath = false, Needle = false;
 
 bool test = false;
 
@@ -109,6 +112,23 @@ void PrintPipe(int y, int x)
     screen[(y + 2) * nScreenWidth + x + 2] = L'-';
 }
 
+void PrintFlag(wchar_t* screen)
+{
+    wsprintf(&screen[0 * nScreenWidth + 10], L"-----------");
+    wsprintf(&screen[1 * nScreenWidth + 10], L"| *  ^  * |");
+    wsprintf(&screen[2 * nScreenWidth + 10], L"|  < 0 >  |");
+    wsprintf(&screen[3 * nScreenWidth + 10], L"|   +++   |");
+    wsprintf(&screen[4 * nScreenWidth + 10], L"|    *    |");
+    wsprintf(&screen[5 * nScreenWidth + 10], L"-----------");
+
+    wsprintf(&screen[46 * nScreenWidth + 10], L"-----------");
+    wsprintf(&screen[47 * nScreenWidth + 10], L"| __-$-__ |");
+    wsprintf(&screen[48 * nScreenWidth + 10], L"|  / O \\  |");
+    wsprintf(&screen[49 * nScreenWidth + 10], L"|  / O \\  |");
+    wsprintf(&screen[50 * nScreenWidth + 10], L"| _-===-_ |");
+    wsprintf(&screen[51 * nScreenWidth + 10], L"-----------");
+}
+
 void SetScene(wchar_t* screen)
 {
     for (int i = 0; i < nScreenWidth; i++)
@@ -144,8 +164,9 @@ void SetScene(wchar_t* screen)
     PrintPipe(17, PIPEC - 2);
     PrintPipe(30, PIPED - 2);
     PrintPipe(30, PIPEE - 2);
-    wsprintf(&screen[nScreenWidth + 10], L"%d", lMineral);
-    wsprintf(&screen[47 * nScreenWidth + 10], L"%d", rMineral);
+    PrintFlag(screen);
+    wsprintf(&screen[nScreenWidth + 140], L"%d", lMineral);
+    wsprintf(&screen[47 * nScreenWidth + 140], L"%d", rMineral);
     return;
 }
 
@@ -388,6 +409,11 @@ void SetStartButton(wchar_t* screen, int cnt)
     wsprintf(&screen[27 * nScreenWidth + 143], L"Touch To Start");
 }
 
+void SetTimeCount(wchar_t* screen, int m, int s)
+{
+    wsprintf(&screen[10 * nScreenWidth + 30], L"%d : %d", m, s);
+}
+
 
 void Attack(eNode* source, eNode* target)
 {
@@ -408,8 +434,10 @@ void Attack(eNode* source, eNode* target)
         source->e.mdfLife(-200);
         return;
     }
+
     source->e.addAcount(1);
-    source->e.resetMcount();
+    if (source->e.getType() != 11 && source->e.getType() != 12)
+        source->e.resetMcount();
     if (source->e.getAcount() > source->e.getAspeed()) {
         source->e.addAcount(-source->e.getAspeed());
         if (source->e.getType() == 10) {
@@ -519,7 +547,6 @@ bool CheckAttack(eNode* a) // Can be better
         }
         return true;
     }
-
 
     if (a->pre == NULL) // Nothing left
     {
@@ -672,26 +699,31 @@ wNode* getFreewNode()
 
 bool CheckMove(eNode* x, int dist)
 {
-    if (x->e.getRx() + dist > 170 || x->e.getLx() + dist < 10)
-        return false;
+    /*if (x->e.getRx() + dist > 170 || x->e.getLx() + dist < 10)
+        return false;*/
     if (!x->e.getPlayer()) {
-        if (x->ne == NULL || (x->ne->e.getPlayer() == 0 && (x->ne->e.getType() == 0 || x->ne->e.getType() == 4 || x->ne->e.getType() == 5)) || x->ne->e.getLx() > x->e.getRx() + dist)
+        if (x->ne == NULL || /*(x->ne->e.getPlayer() == 0 && (x->ne->e.getType() == 0 || x->ne->e.getType() == 4 || x->ne->e.getType() == 5)) ||*/ x->ne->e.getLx() > x->e.getRx() + dist)
             return true;
     }
     else {
-        if (x->pre == NULL || (x->pre->e.getPlayer() == 1 && (x->pre->e.getType() == 0 || x->pre->e.getType() == 4 || x->pre->e.getType() == 5)) || x->pre->e.getRx() < x->e.getLx() - dist)
+        if (x->pre == NULL || /*(x->pre->e.getPlayer() == 1 && (x->pre->e.getType() == 0 || x->pre->e.getType() == 4 || x->pre->e.getType() == 5)) ||*/ x->pre->e.getRx() < x->e.getLx() - dist)
             return true;
     }
+    x->e.resetMcount();
     return false;
 }
 
 void Move(eNode* x)
 {
+    x->e.addMcount();
     if (x->e.getMspeed() == 0)
         return;
-    x->e.addMcount();
-
-    if (x->e.getMcount() % x->e.getMspeed() == 0 && CheckMove(x, 1)) { // not correct
+    if (x->e.getType() == 11) {
+        if (x->e.getMcount() % x->e.getMspeed() == 0 && CheckMove(x, 2)) {
+            x->e.eMoveX(-2, true);
+        }
+    }
+    if (x->e.getMcount() % x->e.getMspeed() == 0 && CheckMove(x, 1)) {
 
         if (!x->e.getPlayer())
             x->e.eMoveX(1, true);
@@ -714,6 +746,8 @@ void initBase()
 {
     eNode* p1 = getFreeeNode();
     eNode* p2 = getFreeeNode();
+    lbase = &(p1->e);
+    rbase = &(p2->e);
     p1->e.setEntity(0, 0, 2);
     p2->e.setEntity(0, 1, 165);
     hMid = p1;
@@ -727,6 +761,8 @@ bool CheckCollision(eNode* a, eNode* list)
 {
     for (auto i = list; i != NULL; i = i->ne)
     {
+        //if (i->e.getPlayer() == a->e.getPlayer() && (i->e.getType() == 4 || i->e.getType() == 5))
+        //    continue;
         if (!(i->e.getRx() < a->e.getLx() || i->e.getLx() > a->e.getRx())) {// not at left or not at right, then invalid 
             return true;
         }
@@ -883,6 +919,36 @@ void StatusAccountE(eNode* &list)
     eNode* now = NULL;
     for (auto i = list; i != NULL; i = i->ne)
     {
+        if (i->e.getType() == 11 && !Goliath && i->e.getLife() <= 1000) {
+            Goliath = true;
+            int cnt = 10;
+            for (auto j = i->pre; j != NULL; j = j->pre) {
+                if (!j->e.getPlayer()) {
+                    while (cnt-- && j->e.getLife() > 0)
+                        j->e.mdfLife(-40);
+                }
+            }
+        }
+        if (i->e.getType() == 12 && !Goliath && i->e.getLife() <= 1000) {
+            Needle = true;
+            for (auto j = i->ne; j != NULL; j = j->ne) {
+                if (j->e.getPlayer()) {
+                    j->e.mdfLife(-250);
+                }
+            }
+        }
+        if (i->e.getType() == 4 && i->e.getMcount() % 20 == 0 && i->e.getMcount() != 0) {
+            i->e.mdfLife(-5);
+        }
+        else if (i->e.getType() == 5 && i->e.getMcount() % 20 == 0 && i->e.getMcount() != 0) {
+            if (i->e.getMcount() % 60 == 0) {
+                if (i->e.getPlayer())
+                    rMineral = min(10, rMineral + 1);
+                else
+                    lMineral = min(10, lMineral + 1);
+            }
+            i->e.mdfLife(-15);
+        }
         if (now != NULL) {
             eNodeDelete(now, list);
             eNodeFree(now);
@@ -927,6 +993,12 @@ void AttackMove(eNode*& list, wNode*& listw)
             wNode* wn = getFreewNode();
             wn->w.setWeapon(6, i->e.getPlayer(), i->e.getLx() + 3 - 20);
             AddwList(wn, listw);
+            continue;
+        }
+        if (i->e.getType() == 11 || i->e.getType() == 12) {
+            if (!CheckAttack(i))
+                i->e.resetAcount();
+            Move(i);
             continue;
         }
         if (!CheckAttack(i)) {
@@ -1048,6 +1120,42 @@ void setlcropw(int num, bool player, int x)
     if (lcropw == NULL)
         lcropw = getFreewNode();
     lcropw->w.setWeapon(num, player, x);
+}
+
+void eClear(eNode*& list)
+{
+    eNode* now = NULL;
+    for (auto i = list; i != NULL; i = i->ne)
+    {
+        if (now != NULL) {
+            eNodeDelete(now, list);
+            eNodeFree(now);
+        }
+        now = i;
+    }
+    if (now != NULL) {
+        eNodeDelete(now, list);
+        eNodeFree(now);
+    }
+    list = NULL;
+}
+
+void wClear(wNode*& list)
+{
+    wNode* now = NULL;
+    for (auto i = list; i != NULL; i = i->ne)
+    {
+        if (now != NULL) {
+            wNodeDelete(now, list);
+            wNodeFree(now);
+        }
+        now = i;
+    }
+    if (now != NULL) {
+        wNodeDelete(now, list);
+        wNodeFree(now);
+    }
+    list = NULL;
 }
 
 int main()
@@ -1207,27 +1315,97 @@ int main()
                 }
                 isCountDown = true;
             }
-
         }
-
         for (int k = 0; k < 24; k++)
             bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\xc0JLIK\x0D\x37\x38\x39\x30\xBD\x08\x01\x02"[k]))) != 0;
-        wsprintf(&screen[16 * nScreenWidth + 30], L"%d %d", pt.x, pt.y);
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0,0 }, &dwBytesWritten);
     }
 
     initcard();
+    //hMid->ne->e.setEntity(11, 1, 150);
+    //hMid->e.setEntity(12, 0, 20);
+    TimeCount t;
+    bool Endgame = false;
     while (1)
     {
+   // -----------
+   // | *  ^  * |
+   // |  / O \  |
+   // |   +++   |
+   // |    *    |
+   // -----------  
+   // | __-$-__ | 
+   // |  < 0 >  |
+   // | __-|-__ |
+   // |   -$-   |
+   // ----------- 
+        this_thread::sleep_for(50ms);
+        nSpeedCounter += 10;
+        t.addMs();
+        if (t.isGameEnd() && !Endgame) {
+            Endgame = true;
+            lbase->setEntity(12, 0, 10);
+            rbase->setEntity(11, 1, 170);
+            eClear(hUp);
+            eClear(hDown);
+            wClear(wUp);
+            wClear(wDown);
+        }
+        if (lbase->getLife() <= 0 || rbase->getLife() <= 0) { // Game over
+            for (int i = 20; i <= 31; i++)
+                for (int j = 40; j <= 140; j++)
+                    screen[i * nScreenWidth + j] = L' ';
+            for (int i = 20; i <= 31; i++)
+            {
+                screen[i * nScreenWidth + 40] = L'|';
+                screen[i * nScreenWidth + 140] = L'|';
+            }
+            for (int i = 40; i <= 140; i++)
+            {
+                screen[20 * nScreenWidth + i] = L'-';
+                screen[31 * nScreenWidth + i] = L'-';
+            }
+            wsprintf(&screen[24 * nScreenWidth + 90], L"_    _    _   _____     _      ");
+            wsprintf(&screen[25 * nScreenWidth + 90], L"\\    \\    /     |      | \\\\   |");
+            wsprintf(&screen[26 * nScreenWidth + 90], L" \\  / \\  /      |      |  \\\\  |");
+            wsprintf(&screen[27 * nScreenWidth + 90], L"  \\/   \\/     __|__    |   \\\\_|");
+            if (nSpeedCounter % 200 <= 100)
+                wsprintf(&screen[29 * nScreenWidth + 73], L"Press the space bar to return");
+            else
+                wsprintf(&screen[29 * nScreenWidth + 73], L"                             ");
+            if (rbase->getLife() <= 0) {
+                wsprintf(&screen[23 * nScreenWidth + 60], L"-----------");
+                wsprintf(&screen[24 * nScreenWidth + 60], L"| *  ^  * |");
+                wsprintf(&screen[25 * nScreenWidth + 60], L"|  < 0 >  |");
+                wsprintf(&screen[26 * nScreenWidth + 60], L"|   +++   |");
+                wsprintf(&screen[27 * nScreenWidth + 60], L"|    *    |");
+                wsprintf(&screen[28 * nScreenWidth + 60], L"-----------");
+            }
+            else {
+                wsprintf(&screen[23 * nScreenWidth + 60], L"-----------");
+                wsprintf(&screen[24 * nScreenWidth + 60], L"| __-$-__ |");
+                wsprintf(&screen[25 * nScreenWidth + 60], L"|  / O \\  |");
+                wsprintf(&screen[26 * nScreenWidth + 60], L"|  / O \\  |");
+                wsprintf(&screen[27 * nScreenWidth + 60], L"| _-===-_ |");
+                wsprintf(&screen[28 * nScreenWidth + 60], L"-----------");
+            }
+            if (bKey[4]) {
+                break;
+            }
+            for (int k = 0; k < 24; k++)
+                bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\xc0JLIK\x0D\x37\x38\x39\x30\xBD\x08\x01\x02"[k]))) != 0;
+            WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth* nScreenHeight, { 0,0 }, & dwBytesWritten);
+            continue;
+        }
         for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
             screen[i] = L' ';
         SetScene(screen);
         // Timing
-        this_thread::sleep_for(50ms);
-        nSpeedCounter += 10;
+
+
         lnem = max(0, lnem - 1);
         rnem = max(0, rnem - 1);
-        if (nSpeedCounter % 150 == 0) {
+        if (nSpeedCounter % 450 == 0) {
             lMineral = min(10, lMineral + 1);
             rMineral = min(10, rMineral + 1);
         }
@@ -1247,25 +1425,21 @@ int main()
                             AddwList(lcropw, wMid);
                         else
                             AddwList(lcropw, wDown);
-                        lcropw = NULL;
                         isUse = true;
                     }
                     if (lcrope != NULL) {
                         if (lcrope->e.getRoad() == UPROAD && !CheckCollision(lcrope, hUp)) {
                            AddList(lcrope, hUp);
                            isUse = true;
-                           lcrope = NULL;
                         }
                         else if (lcrope->e.getRoad() == MIDROAD && !CheckCollision(lcrope, hMid)) {
                             //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
                             //test = true;
                             AddList(lcrope, hMid);
                             isUse = true;
-                            lcrope = NULL;
                         }
                         else if (lcrope->e.getRoad() == DOWNROAD && !CheckCollision(lcrope, hDown)) {
                             AddList(lcrope, hDown);
-                            lcrope = NULL;
                             isUse = true;
                         }
                     }
@@ -1279,8 +1453,8 @@ int main()
                         bool isOk = true;
                         for (int i = 1; i <= 5; i++)
                         {
-                            if (i == lcropc)
-                                continue;
+                            //if (i == lcropc)
+                            //    continue;
                             if (lq[rd] == card[i].getType()) {
                                 isOk = false;
                                 break;
@@ -1291,6 +1465,8 @@ int main()
                             break;
                         }
                     }
+                    lcrope = NULL;
+                    lcropw = NULL;
                     lcropc = 0;
                 }
             }
@@ -1315,25 +1491,21 @@ int main()
                             AddwList(rcropw, wMid);
                         else
                             AddwList(rcropw, wDown);
-                        rcropw = NULL;
                         isUse = true;
                     }
                     if (rcrope != NULL) {
                         if (rcrope->e.getRoad() == UPROAD && !CheckCollision(rcrope, hUp)) {
                             AddList(rcrope, hUp);
-                            rcrope = NULL;
                             isUse = true;
                         }
                         else if (rcrope->e.getRoad() == MIDROAD && !CheckCollision(rcrope, hMid)) {
                             //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
                             //test = true;
                             AddList(rcrope, hMid);
-                            rcrope = NULL;
                             isUse = true;
                         }
                         else if (rcrope->e.getRoad() == DOWNROAD && !CheckCollision(rcrope, hDown)) {
                             AddList(rcrope, hDown);
-                            rcrope = NULL;
                             isUse = true;
                         }
                     }
@@ -1347,19 +1519,21 @@ int main()
                         bool isOk = true;
                         for (int i = 6; i <= 10; i++)
                         {
-                            if (i == rcropc)
-                                continue;
-                            if (lq[rd] == card[i].getType()) {
+                            /*if (i == rcropc)
+                                continue;*/
+                            if (rq[rd] == card[i].getType()) {
                                 isOk = false;
                                 break;
                             }
                         }
                         if (isOk) {
-                            card[rcropc].setCard(0, rd, x);
+                            card[rcropc].setCard(1, rd, x);
                             break;
                         }
                     }
-                    lcropc = 0;
+                    rcropc = 0;
+                    rcrope = NULL;
+                    rcropw = NULL;
                 }
             }
 
@@ -1434,7 +1608,7 @@ int main()
             if (bKey[1])
                 lcrope->e.eMoveX(1, 0);
 
-            if (bKey[2]) {
+            if (bKey[2] && !t.isGameEnd()) {
                 if (!keyHoldW)
                     lcrope->e.eModifyY(1);
                 keyHoldW = true;
@@ -1442,7 +1616,7 @@ int main()
             else
                 keyHoldW = false;
 
-            if (bKey[3]) {
+            if (bKey[3] && !t.isGameEnd()) {
                 if (!keyHoldS)
                     lcrope->e.eModifyY(0);
                 keyHoldS = true;
@@ -1471,7 +1645,7 @@ int main()
             else
                 keyHoldD = false;
 
-            if (bKey[2]) {
+            if (bKey[2] && !t.isGameEnd()) {
                 if (!keyHoldW)
                     lcropw->w.wMoveY(1);
                 keyHoldW = true;
@@ -1479,7 +1653,7 @@ int main()
             else
                 keyHoldW = false;
 
-            if (bKey[3]) {
+            if (bKey[3] && !t.isGameEnd()) {
                 if (!keyHoldS)
                     lcropw->w.wMoveY(0);
                 keyHoldS = true;
@@ -1488,9 +1662,6 @@ int main()
                 keyHoldS = false;
         }
 
-
-
-
         if (rcrope != NULL) {
             if (bKey[11])
                 rcrope->e.eMoveX(-1, 0);
@@ -1498,7 +1669,7 @@ int main()
             if (bKey[12])
                 rcrope->e.eMoveX(1, 0);
 
-            if (bKey[13]) {
+            if (bKey[13] && !t.isGameEnd()) {
                 if (!keyHoldI)
                     rcrope->e.eModifyY(1);
                 keyHoldI = true;
@@ -1506,7 +1677,7 @@ int main()
             else
                 keyHoldI = false;
 
-            if (bKey[14]) {
+            if (bKey[14] && !t.isGameEnd()) {
                 if (!keyHoldK)
                     rcrope->e.eModifyY(0);
                 keyHoldK = true;
@@ -1535,7 +1706,7 @@ int main()
             else
                 keyHoldL = false;
 
-            if (bKey[13]) {
+            if (bKey[13] && !t.isGameEnd()) {
                 if (!keyHoldI)
                     rcropw->w.wMoveY(1);
                 keyHoldI = true;
@@ -1543,7 +1714,7 @@ int main()
             else
                 keyHoldI = false;
 
-            if (bKey[14]) {
+            if (bKey[14] && !t.isGameEnd()) {
                 if (!keyHoldK)
                     rcropw->w.wMoveY(0);
                 keyHoldK = true;
@@ -1551,6 +1722,7 @@ int main()
             else
                 keyHoldK = false;
         }
+
 
         // Game Logic
         // Check attack
@@ -1573,14 +1745,70 @@ int main()
         // Display to player
         for (int k = 0; k < 24; k++)
             bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\xc0JLIK\x0D\x37\x38\x39\x30\xBD\x08\x01\x02"[k]))) != 0;
-/*        for (int k = 0; k < 16; k++)
-            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\x36\x37\x38\x39\xc0"[k]))) != 0;*/ // left, right, up, down, space, 1, 2, ~
 
         SetCard(screen);
         SetEntity(screen);
         SetWeapon(screen);
+        SetTimeCount(screen, t.getM(), t.getS());
 
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0,0 }, &dwBytesWritten);
     }
     return 0;
 }
+/*
+  
+   *  ^  *
+    / O \
+     +++
+      *
+      
+    __-$-__ 
+     < 0 >
+    __-|-__
+      -$-
+
+                    _____            
+     \    /\    /     |     |  \    |
+      \  /  \  /      |     |   \   |
+       \/    \/     __|__   |    \  | 
+
+
+
+        _-+-____ 
+       {[]___  _)
+    <=====|[   ]  
+          // /   
+          \\ \   
+      ||---|o|      
+
+
+
+
+        _-+-____
+       {[]___  _)
+    <=====|[   ]
+          / /\ \ 
+          | | \ \
+      |---|---|o|
+
+
+        _-+-____
+       {[]___  _)
+    <=====|[   ]
+          / /\ \
+          | | \ \
+       |--|o|-|o|
+
+
+        _[]======     
+    ___/____\________ 
+    \----\        ___\
+   ==| [ ])======>____
+   ==|_______________/
+
+           /---->_._._._ 
+          [_____-=-=-=-=
+        ___/___\_____
+       |__[]_____[]__\
+      / …… …… …… …… ……\
+*/

@@ -17,7 +17,7 @@ public:
 	int getLx();
 	int getMineral();
 };
-const int CardMineral[] = { 0, 2, 5, 5, 4, 6, 3, 6, 3, 5, 4, 3, 4, 4, 3, 2 };
+const int CardMineral[] = { 0, 2, 5, 5, 4, 5, 3, 6, 3, 5, 4, 3, 4, 4, 3, 2 };
 
 void PrintCard(wchar_t*, int, int, int, int);
 
