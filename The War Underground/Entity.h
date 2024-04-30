@@ -10,8 +10,7 @@ using namespace std;
 
 class Entity {
 private:
-	int type;
-	//bool isReady;
+	int type; // 
 	bool player;
 	int power, mspeed, range, life, armor, aspeed;
 	int state, abnormal;

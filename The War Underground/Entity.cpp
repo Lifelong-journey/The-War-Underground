@@ -433,8 +433,26 @@ bool Entity::eCollision()
 
 void Entity::eMoveX(int mv, bool isReady)
 {
-	lx += mv;
-	rx += mv;
+	if (!isReady) {
+		if (!player) {
+			if (mv > 0)
+				lx = min(lx + mv, 60);
+			else
+				lx = max(lx + mv, 20);
+			rx = lx + len;
+		}
+		else {
+			if (mv > 0)
+				lx = min(lx + mv, 160);
+			else
+				lx = max(lx + mv, 110);
+			rx = lx + len;
+		}
+	}
+	else {
+		lx += mv;
+		rx += mv;
+	}
 	return;
 }
 

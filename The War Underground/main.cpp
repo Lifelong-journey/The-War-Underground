@@ -13,6 +13,8 @@
 #include "Weapon.h"
 #include "Card.h"
 #include "Timecount.h"
+#include "Choosecard.h"
+#include "Gamestart.h"
 
 using namespace std;
 
@@ -92,298 +94,9 @@ void initcard()
     }
 }
 
-
 void print()
 {
     wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
-}
-
-void PrintPipe(int y, int x)
-{
-    for (int i = 0; i < 3; i++)
-    {
-        screen[(y + i) * nScreenWidth + x + 1] = L' ';
-        screen[(y + i) * nScreenWidth + x + 2] = L' ';
-        screen[(y + i) * nScreenWidth + x + 3] = L' ';
-        screen[(y + i) * nScreenWidth + x] = L'#';
-        screen[(y + i) * nScreenWidth + x + 4] = L'#';
-    }
-    screen[y * nScreenWidth + x + 2] = L'-';
-    screen[(y + 2) * nScreenWidth + x + 2] = L'-';
-}
-
-void PrintFlag(wchar_t* screen)
-{
-    wsprintf(&screen[0 * nScreenWidth + 10], L"-----------");
-    wsprintf(&screen[1 * nScreenWidth + 10], L"| *  ^  * |");
-    wsprintf(&screen[2 * nScreenWidth + 10], L"|  < 0 >  |");
-    wsprintf(&screen[3 * nScreenWidth + 10], L"|   +++   |");
-    wsprintf(&screen[4 * nScreenWidth + 10], L"|    *    |");
-    wsprintf(&screen[5 * nScreenWidth + 10], L"-----------");
-
-    wsprintf(&screen[46 * nScreenWidth + 10], L"-----------");
-    wsprintf(&screen[47 * nScreenWidth + 10], L"| __-$-__ |");
-    wsprintf(&screen[48 * nScreenWidth + 10], L"|  / O \\  |");
-    wsprintf(&screen[49 * nScreenWidth + 10], L"|  / O \\  |");
-    wsprintf(&screen[50 * nScreenWidth + 10], L"| _-===-_ |");
-    wsprintf(&screen[51 * nScreenWidth + 10], L"-----------");
-}
-
-void SetScene(wchar_t* screen)
-{
-    for (int i = 0; i < nScreenWidth; i++)
-    {
-        //screen[i] = L'=';
-        //screen[(nScreenHeight - 1) * nScreenWidth + i] = L'=';
-        screen[6 * nScreenWidth + i] = L'-';
-        screen[45 * nScreenWidth + i] = L'-';
-
-        screen[7 * nScreenWidth + i] = L'=';
-
-        screen[17 * nScreenWidth + i] = L'=';
-        screen[18 * nScreenWidth + i] = L'*';
-        screen[19 * nScreenWidth + i] = L'=';
-
-        screen[30 * nScreenWidth + i] = L'=';
-        screen[31 * nScreenWidth + i] = L'*';
-        screen[32 * nScreenWidth + i] = L'=';
-
-        screen[42 * nScreenWidth + i] = L'=';
-        screen[43 * nScreenWidth + i] = L'*';
-        screen[44 * nScreenWidth + i] = L'=';
-    }
-    for (int i = 0; i < nScreenHeight; i++)
-    {
-        screen[i * nScreenWidth] = L'=';
-        screen[(i + 1) * nScreenWidth - 1] = L'=';
-    }
-    PrintPipe(17, PIPEA - 2); // 30
-    PrintPipe(17, PIPEB - 2);
-    //PrintPipe(17, 68);
-    //PrintPipe(17, 106);
-    PrintPipe(17, PIPEC - 2);
-    PrintPipe(30, PIPED - 2);
-    PrintPipe(30, PIPEE - 2);
-    PrintFlag(screen);
-    wsprintf(&screen[nScreenWidth + 140], L"%d", lMineral);
-    wsprintf(&screen[47 * nScreenWidth + 140], L"%d", rMineral);
-    return;
-}
-
-void SetSceneB(wchar_t* screen, int crnum, int x, int y)
-{
-    for (int i = 0; i < nScreenWidth; i++)
-    {
-        screen[6 * nScreenWidth + i] = L'-';
-        screen[45 * nScreenWidth + i] = L'-';
-    }
-    int cnt = 0;
-    for (int i = 8; i <= 38; i += 10)
-    {
-        for (int j = 40; j <= 120; j += 20)
-        {
-            cnt++;
-            switch (cnt) {
-            case 1:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 4], L"  o   ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 4], L"< H --");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 4], L" / \\  ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 2:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 2], L"    ___ __ ");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 2], L" __/___\\__ ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 2], L"/_________\\");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 2], L"o o o o o o");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 3:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 2], L"  // // _  ");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 2], L" //_//_|_\\ ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 2], L"|_________\\");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 2], L" O      O  ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 4:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 2], L"  _     _  ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 2], L" / \\___/ \\ ");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 2], L"/ #|   |# \\");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 5:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"        $$$  ");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 1], L"        ___  ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 1], L" ______/. .\\ ");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 1], L"|[]00 /  .  \\");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 6:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 4], L"   (!) ");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 4], L" ___|_ ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 4], L"|_____|");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 4], L" o   o ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 7:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 2], L"  [_]======>");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 2], L" /___\\___   ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 2], L"[--------)  ");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 2], L" O  OOOOO   ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 8:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 4], L"((*A*))");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 4], L" __|__ ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 4], L"|__+__|");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 4], L"O     O");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 9:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 3], L"    ==={-");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 3], L"_[]_||___");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 3], L"\\_______/");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 3], L" oo   oo ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 10:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 4], L"  o   ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 4], L"[]H--=");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 4], L" / \\  ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 11:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 5], L">");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 2], L"-<-=====>>");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 5], L">");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 12:
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 4], L" _   _ ");
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 4], L"\\ / \\ /");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 4], L"   O   ");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 4], L"  /_\\  ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 13:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 3], L"   * *   ");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 3], L"( (EMP) )");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 3], L"   * *   ");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 14:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 2], L"=\\       /=");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 2], L" ||=====|| ");
-                wsprintf(&screen[(i + 4) * nScreenWidth + j + 2], L"=/       \\=");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            case 15:
-                wsprintf(&screen[(i + 2) * nScreenWidth + j + 6], L"_?_");
-                wsprintf(&screen[(i + 3) * nScreenWidth + j + 5], L"[   ]");
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 1], L"%d", CardMineral[cnt]);
-                wsprintf(&screen[(i + 1) * nScreenWidth + j + 13], L"%d", CardMineral[cnt]);
-                break;
-            }
-
-            for (int k = j; k <= j + 15 - 1; k++)
-            {
-                screen[i * nScreenWidth + k] = L'~';
-                screen[(i + 5) * nScreenWidth + k] = L'~';
-            }
-            for (int k = i + 1; k <= i + 4; k++)
-            {
-                screen[k * nScreenWidth + j] = L'|';
-                screen[k * nScreenWidth + j + 14] = L'|';
-            }
-        }
-    }
-
-    if (crnum != 0) {
-        for (int i = x - 1; i <= x + 15; i++)
-        {
-            screen[(y - 1) * nScreenWidth + i] = L'*';
-            screen[(y + 6) * nScreenWidth + i] = L'*';
-        }
-        for (int i = y; i <= y + 5; i++)
-        {
-            screen[i * nScreenWidth + x - 1] = L'*';
-            screen[i * nScreenWidth + x + 15] = L'*';
-        }
-    }
-    return;
-}
-
-void SetQueue(wchar_t* screen)
-{
-    int cnt = 1;
-    while (lq[cnt])
-    {
-        PrintCard(screen, lq[cnt], 0, 2 + (cnt - 1) * 20, 0);
-        cnt++;
-    }
-    cnt = 1;
-    while (rq[cnt])
-    {
-        PrintCard(screen, rq[cnt], 1, 2 + (cnt - 1) * 20, 46);
-        cnt++;
-    }
-}
-
-
-void SetEntity(wchar_t* screen)
-{
-    for (auto i = hUp; i != NULL; i = i->ne) {
-        i->e.eDraw(screen);
-        i->e.resetData();
-    }
-
-    for (auto i = hMid; i != NULL; i = i->ne) {
-        i->e.eDraw(screen);
-        i->e.resetData();
-    }
-
-    for (auto i = hDown; i != NULL; i = i->ne) {
-        i->e.eDraw(screen);
-        i->e.resetData();
-    }
-
-    if (lcrope != NULL) {
-        //wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
-        lcrope->e.eDraw(screen);
-    }
-    if (rcrope != NULL) {
-        rcrope->e.eDraw(screen);
-    }
-
-    return;
-}
-void SetWeapon(wchar_t* screen)
-{
-    for (auto i = wUp; i != NULL; i = i->ne)
-        i->w.wDraw(screen);
-    for (auto i = wMid; i != NULL; i = i->ne)
-        i->w.wDraw(screen);
-    for (auto i = wDown; i != NULL; i = i->ne)
-        i->w.wDraw(screen);
-    if (lcropw != NULL) {
-        lcropw->w.wDraw(screen);
-    }
-    if (rcropw != NULL) {
-        rcropw->w.wDraw(screen);
-    }
 }
 
 void SetCard(wchar_t* screen)
@@ -392,360 +105,10 @@ void SetCard(wchar_t* screen)
         card[i].cDraw(screen);
 }
 
-void SetStartButton(wchar_t* screen, int cnt)
-{
-    for (int i = 140; i <= 159; i++)
-    {
-        screen[23 * nScreenWidth + i] = L'-';
-        screen[28 * nScreenWidth + i] = L'-';
-    }
-    for (int i = 24; i <= 28; i++)
-    {
-        screen[i * nScreenWidth + 140] = L'|';
-        screen[i * nScreenWidth + 159] = L'|';
-    }
-    if (cnt % 20 <= 10)
-        wsprintf(&screen[25 * nScreenWidth + 146], L"⇒  ⇒  ⇒");
-    wsprintf(&screen[27 * nScreenWidth + 143], L"Touch To Start");
-}
-
-void SetTimeCount(wchar_t* screen, int m, int s)
-{
-    wsprintf(&screen[10 * nScreenWidth + 30], L"%d : %d", m, s);
-}
-
-
-void Attack(eNode* source, eNode* target)
-{
-    source->e.setState(ATTACK);
-    if (source->e.getType() == 6) {
-        for (auto i = source->ne; i != NULL; i = i->ne) {
-            if (source->e.getRx() + 15 < i->e.getLx())
-                break;
-            if (i->e.getPlayer() != source->e.getPlayer())
-                i->e.mdfLife(-source->e.getPower());
-        }
-        for (auto i = source->pre; i != NULL; i = i->pre) {
-            if (source->e.getLx() - 15 > i->e.getRx())
-                break;
-            if (i->e.getPlayer() != source->e.getPlayer())
-                i->e.mdfLife(-source->e.getPower());
-        }
-        source->e.mdfLife(-200);
-        return;
-    }
-
-    source->e.addAcount(1);
-    if (source->e.getType() != 11 && source->e.getType() != 12)
-        source->e.resetMcount();
-    if (source->e.getAcount() > source->e.getAspeed()) {
-        source->e.addAcount(-source->e.getAspeed());
-        if (source->e.getType() == 10) {
-            if (target->e.getLx() > source->e.getLx()) {
-                for (auto i = target; i != NULL; i = i->ne) {
-                    if (source->e.getRx() + source->e.getRange() < i->e.getLx())
-                        break;
-                    if (i->e.getPlayer() != source->e.getPlayer())
-                        i->e.mdfLife(-source->e.getPower());
-                }
-            }
-            else {
-                for (auto i = target; i != NULL; i = i->pre) {
-                    if (source->e.getLx() - source->e.getRange() > i->e.getRx())
-                        break;
-                    if (i->e.getPlayer() != source->e.getPlayer())
-                        i->e.mdfLife(-source->e.getPower());
-                }
-            }
-            return;
-        }
-        target->e.mdfLife(-source->e.getPower());
-    }
-    return;
-}
-
-bool CheckAttack(eNode* a) // Can be better
-{
-    if (a->e.getType() == 7) {
-        if (a->pre == NULL) // Nothing left
-        {
-            if (a->ne == NULL)
-                return false;
-            else {
-                auto next = a->ne;
-                while (next != NULL && (next->e.getPlayer() == a->e.getPlayer() || next->e.getRx() < a->e.getRx() + 25)) { // find the right-first enemy
-                    if (next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range
-                        return false;
-                    next = next->ne;
-                }
-
-                if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) // out of attack range Or no enemy
-                    return false;
-                else
-                    Attack(a, next);
-            }
-        }
-        else if (a->ne == NULL) { // Nothing right
-            auto prev = a->pre;
-            while (prev != NULL && (prev->e.getPlayer() == a->e.getPlayer() || prev->e.getLx() > a->e.getLx() - 25)) {
-                if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
-                    return false;
-                prev = prev->pre;
-            }
-            if (prev == NULL || prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25)  // out of attack range Or no enemy
-                return false;
-            else {
-                a->e.setDir(1);
-                Attack(a, prev);
-            }
-
-        }
-        else {
-            auto prev = a->pre, next = a->ne;
-            while (prev != NULL && (prev->e.getPlayer() == a->e.getPlayer() || prev->e.getLx() > a->e.getLx() - 25)) {
-                if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
-                    break;
-                prev = prev->pre;
-            }
-            while (next != NULL && (next->e.getPlayer() == a->e.getPlayer() || next->e.getRx() < a->e.getRx() + 25)) { // find the right-first enemy
-                if (next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range
-                    break;
-                next = next->ne;
-            }
-            if (prev == NULL) {
-                if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) // out of attack range Or no enemy
-                    return false;
-                else
-                    Attack(a, next);
-            }
-            else if (next == NULL) {
-                if (prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25)
-                    return false;
-                else {
-                    a->e.setDir(1);
-                    Attack(a, prev);
-                }
-            }
-            else {
-                if (prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25) {
-                    if (next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25)
-                        return false;
-                    else
-                        Attack(a, next);
-                }
-                else if (next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) {
-                    a->e.setDir(1);
-                    Attack(a, prev);
-                }
-                else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx())
-                    Attack(a, next);
-                else {
-                    a->e.setDir(1);
-                    Attack(a, prev);
-                }
-            }
-        }
-        return true;
-    }
-
-    if (a->pre == NULL) // Nothing left
-    {
-        if (a->ne == NULL)
-            return false;
-        else {
-            auto next = a->ne;
-            while (next != NULL && next->e.getPlayer() == a->e.getPlayer()) { // find the right-first enemy
-                if (next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range
-                    return false;
-                next = next->ne;
-            }
-
-            if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range Or no enemy
-                return false;
-            else
-                Attack(a, next);
-        }
-    }
-    else if (a->ne == NULL) { // Nothing right
-        auto prev = a->pre;
-        while (prev != NULL && prev->e.getPlayer() == a->e.getPlayer()) {
-            if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
-                return false;
-            prev = prev->pre;
-        }
-        if (prev == NULL || prev->e.getRx() < a->e.getLx() - a->e.getRange())  // out of attack range Or no enemy
-            return false; 
-        else {
-            a->e.setDir(1);
-            Attack(a, prev);
-        }
-
-    }
-    else {
-        auto prev = a->pre, next = a->ne;
-        while (prev != NULL && prev->e.getPlayer() == a->e.getPlayer()) {
-            if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) // out of attack range
-                break;
-            prev = prev->pre;
-        }
-        while (next != NULL && next->e.getPlayer() == a->e.getPlayer()) { // find the right-first enemy
-            if (next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range
-                break;
-            next = next->ne;
-        }
-        if (prev == NULL) {
-            if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range Or no enemy
-                return false;
-            else
-                Attack(a, next);
-        }
-        else if (next == NULL) {
-            if (prev->e.getRx() < a->e.getLx() - a->e.getRange())
-                return false;
-            else {
-                a->e.setDir(1);
-                Attack(a, prev);
-            }
-
-        }
-        else {
-            if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) {
-                if (next->e.getLx() > a->e.getRange() + a->e.getRx())
-                    return false;
-                else
-                    Attack(a, next);
-            }
-            else if (next->e.getLx() > a->e.getRange() + a->e.getRx()) {
-                a->e.setDir(1);
-                Attack(a, prev);
-            }
-            else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx())
-                Attack(a, next);
-            else {
-                a->e.setDir(1);
-                Attack(a, prev);
-            }
-        }
-    }
-    return true;
-}
-
-void AddList(eNode* a, eNode* &list)
-{
-    
-    if (list == NULL) {
-        //test = true;
-        a->pre = NULL;
-        a->ne = list;
-        list = a;
-        return;
-    }
-
-    eNode* now = list;
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        if (i->e.getLx() > a->e.getLx()) {
-            a->pre = i->pre;
-            a->ne = i;
-            if (i->pre != NULL) {
-                i->pre->ne = a;
-                i->pre = a;
-            }
-            else {
-
-                i->pre = a;
-                list = a;
-            }
-            return;
-        }
-        now = i;
-    }
-    now->ne = a;
-    a->pre = now;
-    a->ne = NULL;
-    return;
-}
-
-void AddwList(wNode* a, wNode* &list) // 头插法
-{
-    if (list == NULL) {
-        a->ne = NULL;
-        a->pre = NULL;
-        list = a;
-    }
-    else {
-        a->pre = NULL;
-        a->ne = list;
-        list->pre = a;
-        list = a;
-    }
-}
-
-eNode* getFreeeNode()
-{
-    eNode* x = hFree;
-    hFree = hFree->ne;
-    x->pre = NULL;
-    x->ne = NULL;
-    return x;
-}
-
-wNode* getFreewNode()
-{
-    wNode* x = wFree;
-    wFree = wFree->ne;
-    return x;
-}
-
-bool CheckMove(eNode* x, int dist)
-{
-    /*if (x->e.getRx() + dist > 170 || x->e.getLx() + dist < 10)
-        return false;*/
-    if (!x->e.getPlayer()) {
-        if (x->ne == NULL || /*(x->ne->e.getPlayer() == 0 && (x->ne->e.getType() == 0 || x->ne->e.getType() == 4 || x->ne->e.getType() == 5)) ||*/ x->ne->e.getLx() > x->e.getRx() + dist)
-            return true;
-    }
-    else {
-        if (x->pre == NULL || /*(x->pre->e.getPlayer() == 1 && (x->pre->e.getType() == 0 || x->pre->e.getType() == 4 || x->pre->e.getType() == 5)) ||*/ x->pre->e.getRx() < x->e.getLx() - dist)
-            return true;
-    }
-    x->e.resetMcount();
-    return false;
-}
-
-void Move(eNode* x)
-{
-    x->e.addMcount();
-    if (x->e.getMspeed() == 0)
-        return;
-    if (x->e.getType() == 11) {
-        if (x->e.getMcount() % x->e.getMspeed() == 0 && CheckMove(x, 2)) {
-            x->e.eMoveX(-2, true);
-        }
-    }
-    if (x->e.getMcount() % x->e.getMspeed() == 0 && CheckMove(x, 1)) {
-
-        if (!x->e.getPlayer())
-            x->e.eMoveX(1, true);
-        else
-            x->e.eMoveX(-1, true);
-    }
-}
-
-void wMove(wNode* x)
-{
-    if (x->w.getMspeed() == 0)
-        return;
-    if (!x->w.getPlayer())
-        x->w.wMoveX(1, true);
-    else
-        x->w.wMoveX(-1, true);
-}
-
 void initBase()
 {
-    eNode* p1 = getFreeeNode();
-    eNode* p2 = getFreeeNode();
+    eNode* p1 = getFreeeNode(hFree);
+    eNode* p2 = getFreeeNode(hFree);
     lbase = &(p1->e);
     rbase = &(p2->e);
     p1->e.setEntity(0, 0, 2);
@@ -755,407 +118,6 @@ void initBase()
     p2->ne = NULL;
     p1->ne = p2;
     p2->pre = p1;
-}
-
-bool CheckCollision(eNode* a, eNode* list)
-{
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        //if (i->e.getPlayer() == a->e.getPlayer() && (i->e.getType() == 4 || i->e.getType() == 5))
-        //    continue;
-        if (!(i->e.getRx() < a->e.getLx() || i->e.getLx() > a->e.getRx())) {// not at left or not at right, then invalid 
-            return true;
-        }
-    }
-    return false;
-}
-
-bool CheckAttackB(eNode* a, eNode* list)
-{
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        int alx = a->e.getLx(), arx = a->e.getRx(), ar = a->e.getRange(), ilx = i->e.getLx(), irx = i->e.getRx();
-        if (i->e.getPlayer() != a->e.getPlayer() && (ilx <= arx + ar && ilx > arx || irx >= alx - ar && irx < alx))
-            return true;
-    }
-    return  false;
-}
-
-void eNodeDelete(eNode* x, eNode*& list)
-{
-    if (x->pre == NULL) {
-        if (x->ne == NULL) {
-            //test = true;
-            list = NULL;
-        }
-
-        else {
-            list = x->ne;
-            x->ne->pre = NULL;
-        }
-    }
-    else if (x->ne == NULL) {
-        x->pre->ne = NULL;
-    }
-    else {
-        x->pre->ne = x->ne;
-        x->ne->pre = x->pre;
-    }
-}
-
-void eNodeFree(eNode* x)
-{
-    hFree->pre = x;
-    x->ne = hFree;
-    hFree = x;
-}
-
-void wNodeDelete(wNode* x, wNode*& list)
-{
-    if (x->pre == NULL) {
-        if (x->ne == NULL) {
-            //test = true;
-            list = NULL;
-        }
-        else {
-            list = x->ne;
-            x->ne->pre = NULL;
-        }
-    }
-    else if (x->ne == NULL) {
-        x->pre->ne = NULL;
-    }
-    else {
-        x->pre->ne = x->ne;
-        x->ne->pre = x->pre;
-    }
-    x->ne = NULL;
-    x->pre = NULL;
-}
-
-void wNodeFree(wNode* x)
-{
-
-    wFree->pre = x;
-    x->ne = wFree;
-    wFree = x;
-}
-
-bool CheckAlive(eNode* a)
-{
-    return (a->e.getLife() > 0);
-}
-
-void wait()
-{
-    return;
-}
-
-bool CheckUpDown(eNode* x)
-{
-    int road = x->e.getRoad(), lx = x->e.getLx(), rx = x->e.getRx();
-    bool player = x->e.getPlayer();
-    if (road == MIDROAD) {
-        if (lx <= PIPEA && rx >= PIPEA || lx <= PIPEB && rx >= PIPEB || lx <= PIPEC && rx >= PIPEC)
-            if (CheckAttackB(x, hUp) && !CheckCollision(x, hUp)) {
-                x->e.eMoveUp();
-                eNodeDelete(x, hMid);
-                AddList(x, hUp);
-                return true;
-            }
-        if (lx <= PIPED && rx >= PIPED || lx <= PIPEE && rx >= PIPEE)
-            if (CheckAttackB(x, hDown) && !CheckCollision(x, hDown)) {
-                x->e.eMoveDown();
-                eNodeDelete(x, hMid);
-                AddList(x, hDown);
-                return true;
-            }
-    }
-    else if (road == UPROAD) {
-        if ((!player && (lx <= PIPEA && rx >= PIPEA)) || (player && (lx <= PIPEC && rx >= PIPEC)) || (lx <= PIPEB && rx >= PIPEB)) {
-            if (CheckAttackB(x, hMid) && !CheckCollision(x, hMid)) {
-                x->e.eMoveDown();
-                eNodeDelete(x, hUp);
-                AddList(x, hMid);
-                return true;
-            }
-        }
-        else if ((!player && lx <= PIPEC && rx >= PIPEC) || (player && lx <= PIPEA && rx >= PIPEA)) {
-            if (!CheckCollision(x, hMid)) {
-                x->e.eMoveDown();
-                eNodeDelete(x, hUp);
-                AddList(x, hMid);
-            }
-            else
-                wait();
-            return true;
-        }
-    }
-    else if (road == DOWNROAD) {
-        if ((!player && lx <= PIPED && rx >= PIPED) || (player && lx <= PIPEE && rx >= PIPEE)) {
-            if (CheckAttackB(x, hMid) && !CheckCollision(x, hMid)) {
-                x->e.eMoveUp();
-                eNodeDelete(x, hDown);
-                AddList(x, hMid);
-                return true;
-            }
-        }
-        else if ((!player && lx <= PIPEE && rx >= PIPEE) || (player && lx <= PIPED && rx >= PIPED)) {
-            if (!CheckCollision(x, hMid)) {
-                x->e.eMoveUp();
-                eNodeDelete(x, hDown);
-                AddList(x, hMid);
-            }
-            else
-                wait();
-            return true;
-        }
-    }
-    return false;
-}
-
-void StatusAccountE(eNode* &list)
-{
-    eNode* now = NULL;
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        if (i->e.getType() == 11 && !Goliath && i->e.getLife() <= 1000) {
-            Goliath = true;
-            int cnt = 10;
-            for (auto j = i->pre; j != NULL; j = j->pre) {
-                if (!j->e.getPlayer()) {
-                    while (cnt-- && j->e.getLife() > 0)
-                        j->e.mdfLife(-40);
-                }
-            }
-        }
-        if (i->e.getType() == 12 && !Goliath && i->e.getLife() <= 1000) {
-            Needle = true;
-            for (auto j = i->ne; j != NULL; j = j->ne) {
-                if (j->e.getPlayer()) {
-                    j->e.mdfLife(-250);
-                }
-            }
-        }
-        if (i->e.getType() == 4 && i->e.getMcount() % 20 == 0 && i->e.getMcount() != 0) {
-            i->e.mdfLife(-5);
-        }
-        else if (i->e.getType() == 5 && i->e.getMcount() % 20 == 0 && i->e.getMcount() != 0) {
-            if (i->e.getMcount() % 60 == 0) {
-                if (i->e.getPlayer())
-                    rMineral = min(10, rMineral + 1);
-                else
-                    lMineral = min(10, lMineral + 1);
-            }
-            i->e.mdfLife(-15);
-        }
-        if (now != NULL) {
-            eNodeDelete(now, list);
-            eNodeFree(now);
-            now = NULL;
-        }
-        if (!CheckAlive(i))
-            now = i;
-    }
-    if (now != NULL) {
-        eNodeDelete(now, list);
-        eNodeFree(now);
-    }
-}
-
-void StatusAccountW(wNode* &list)
-{
-    wNode* now = NULL;
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-
-        i->w.cutTime();
-        if (now != NULL) {
-            wNodeDelete(now, list);
-            wNodeFree(now);
-            now = NULL;
-        }
-        if (i->w.getTime() < 0)
-            now = i;
-    }
-    if (now != NULL) {
-        wNodeDelete(now, list);
-        wNodeFree(now);
-    }
-}
-
-void AttackMove(eNode*& list, wNode*& listw)
-{
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        if (i->e.getType() == 8) {
-            Move(i);
-            wNode* wn = getFreewNode();
-            wn->w.setWeapon(6, i->e.getPlayer(), i->e.getLx() + 3 - 20);
-            AddwList(wn, listw);
-            continue;
-        }
-        if (i->e.getType() == 11 || i->e.getType() == 12) {
-            if (!CheckAttack(i))
-                i->e.resetAcount();
-            Move(i);
-            continue;
-        }
-        if (!CheckAttack(i)) {
-            //i->e.setDir(0); // this will be done at the draw part
-            i->e.resetAcount();
-            if (!CheckUpDown(i))
-                Move(i); // not attack
-        }
-    }
-}
-
-bool TakeEffect(wNode* wn, eNode* elist, wNode*& wlist)
-{
-    auto w = wn->w;
-    for (auto j = elist; j != NULL; j = j->ne)
-    {
-        auto& e = j->e;
-        if (e.getRx() < w.getLx() || e.getLx() > w.getRx())
-            continue;
-        int type = w.getType();
-        switch (type) {
-        case 1:
-            if (e.getPlayer() == w.getPlayer())
-                continue;
-            e.mdfLife(-w.getPower());
-            wNodeDelete(wn, wlist);
-            wNodeFree(wn);
-            return true; // the missile can only attack one entity
-        case 2:
-            e.mdfLife(-w.getPower());
-            return false; // the water can damage all the entity, no matter enemy or friend
-        case 3:
-            if (e.getPlayer() == w.getPlayer())
-                continue;
-            e.mdfRange(5);
-            return false;
-        case 4:
-            if (e.getPlayer() != w.getPlayer())
-                continue;
-            e.mdfLife(w.getPower());
-            return false;
-        case 5:
-            if (w.getTime() >= 240)
-                continue;
-            e.mdfLife(-w.getPower());
-            wNodeDelete(wn, wlist);
-            wNodeFree(wn);
-            return true;
-        case 6:
-            if (e.getPlayer() != w.getPlayer())
-                continue;
-            e.mdfArmor(w.getPower());
-            return false;
-        }
-    }
-    return false;
-}
-
-void EffectMove(wNode*& list, eNode* elist)
-{
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        i->w.addTcount();
-        if (i->w.getTcount() == i->w.getAspeed()) {
-            i->w.resetTcount();
-            if (TakeEffect(i, elist, list))
-                return;
-        }
-        if (i->w.getMspeed() != 0)
-            if (i->w.getPlayer() == 0)
-                i->w.wMoveX(i->w.getMspeed(), 1);
-            else
-                i->w.wMoveX(-i->w.getMspeed(), 1);
-    }
-}
-
-void setlcrope(int num, bool player, int x)
-{
-    if (lcropw != NULL) {
-        wNodeFree(lcropw);
-        lcropw = NULL;
-    }
-
-    if (lcrope == NULL)
-        lcrope = getFreeeNode();
-    lcrope->e.setEntity(num, player, x);
-}
-
-void setrcrope(int num, bool player, int x)
-{
-    if (rcropw != NULL) {
-        wNodeFree(rcropw);
-        rcropw = NULL;
-    }
-
-    if (rcrope == NULL)
-        rcrope = getFreeeNode();
-    rcrope->e.setEntity(num, player, x);
-}
-
-
-void setrcropw(int num, bool player, int x)
-{
-    if (rcrope != NULL) {
-        eNodeFree(rcrope);
-        rcrope = NULL;
-    }
-    if (rcropw == NULL)
-        rcropw = getFreewNode();
-    rcropw->w.setWeapon(num, player, x);
-}
-
-void setlcropw(int num, bool player, int x)
-{
-    if (lcrope != NULL) {
-        eNodeFree(lcrope);
-        lcrope = NULL;
-    }
-    if (lcropw == NULL)
-        lcropw = getFreewNode();
-    lcropw->w.setWeapon(num, player, x);
-}
-
-void eClear(eNode*& list)
-{
-    eNode* now = NULL;
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        if (now != NULL) {
-            eNodeDelete(now, list);
-            eNodeFree(now);
-        }
-        now = i;
-    }
-    if (now != NULL) {
-        eNodeDelete(now, list);
-        eNodeFree(now);
-    }
-    list = NULL;
-}
-
-void wClear(wNode*& list)
-{
-    wNode* now = NULL;
-    for (auto i = list; i != NULL; i = i->ne)
-    {
-        if (now != NULL) {
-            wNodeDelete(now, list);
-            wNodeFree(now);
-        }
-        now = i;
-    }
-    if (now != NULL) {
-        wNodeDelete(now, list);
-        wNodeFree(now);
-    }
-    list = NULL;
 }
 
 int main()
@@ -1198,113 +160,11 @@ int main()
         POINT pt;
         GetCursorPos(&pt);
         int x = pt.x, y = pt.y;
-        if (bKey[22]) {
-            if (y >= 200 && y <= 280) {
-                if (x >= 385 && x <= 510) {
-                    crnum = 1;
-                    x0 = 40, y0 = 8;
-                }
-                else if (x >= 575 && x <= 700) {
-                    crnum = 2;
-                    x0 = 60, y0 = 8;
-                }
-                else if (x >= 760 && x <= 890) {
-                    crnum = 3;
-                    x0 = 80, y0 = 8;
-                }
-                else if (x >= 945 && x <= 1075) {
-                    crnum = 4;
-                    x0 = 100, y0 = 8;
-                }
-                else if (x >= 1135 && x <= 1260) {
-                    crnum = 5;
-                    x0 = 120, y0 = 8;
-                }
-            }
-            else if (y >= 385 && y <= 465) {
-                if (x >= 385 && x <= 510) {
-                    crnum = 6;
-                    x0 = 40, y0 = 18;
-                }
-                else if (x >= 575 && x <= 700) {
-                    crnum = 7;
-                    x0 = 60, y0 = 18;
-                }
-                else if (x >= 760 && x <= 890) {
-                    crnum = 8;
-                    x0 = 80, y0 = 18;
-                }
-                else if (x >= 945 && x <= 1075) {
-                    crnum = 9;
-                    x0 = 100, y0 = 18;
-                }
-                else if (x >= 1135 && x <= 1260) {
-                    crnum = 10;
-                    x0 = 120, y0 = 18;
-                }
-            }
-            else if (y >= 575 && y <= 650) {
-                if (x >= 385 && x <= 510) {
-                    crnum = 11;
-                    x0 = 40, y0 = 28;
-                }
-                else if (x >= 575 && x <= 700) {
-                    crnum = 12;
-                    x0 = 60, y0 = 28;
-                }
-                else if (x >= 760 && x <= 890) {
-                    crnum = 13;
-                    x0 = 80, y0 = 28;
-                }
-                else if (x >= 945 && x <= 1075) {
-                    crnum = 14;
-                    x0 = 100, y0 = 28;
-                }
-                else if (x >= 1135 && x <= 1260) {
-                    crnum = 15;
-                    x0 = 120, y0 = 28;
-                }
-            }
-        }
-        if (bKey[23]) {
-            crnum = 0;
-        }
-        if (bKey[4] && crnum != 0 && lhh < 9) {
-            bool isSame = false;
-            for (int i = 1; i <= lhh; i++)
-                if (lq[i] == crnum) {
-                    isSame = true;
-                    break;
-                }
-            if (!isSame) {
-                lq[++lhh] = crnum;
-                crnum = 0;
-            }
-        }
-        if (bKey[15] && crnum != 0 && rhh < 9) {
-            bool isSame = false;
-            for (int i = 1; i <= rhh; i ++)
-                if (rq[i] == crnum) {
-                    isSame = true;
-                    break;
-                }
-            if (!isSame) {
-                rq[++rhh] = crnum;
-                crnum = 0;
-            }
-        }
-        if (bKey[10] && lhh != 0) {
-            lq[lhh--] = 0;
-        }
 
-        if (bKey[21] && rhh != 0) {
-            rq[rhh--] = 0;
-        }
+        ccInput(bKey, lq, rq, x, y, x0, y0, crnum, lhh, rhh);
+        ccSetScene(screen, crnum, x0, y0);
+        ccSetQueue(screen, lq, rq);
 
-        
-
-        SetSceneB(screen, crnum, x0, y0);
-        SetQueue(screen);
         if (readyToStart) {
             SetStartButton(screen, nSpeedCount);
             if (bKey[22] && x >= 1320 && x <= 1495 && y >= 480 && y <= 560) {
@@ -1346,10 +206,10 @@ int main()
             Endgame = true;
             lbase->setEntity(12, 0, 10);
             rbase->setEntity(11, 1, 170);
-            eClear(hUp);
-            eClear(hDown);
-            wClear(wUp);
-            wClear(wDown);
+            eClear(hUp, hFree);
+            eClear(hDown, hFree);
+            wClear(wUp, wFree);
+            wClear(wDown, wFree);
         }
         if (lbase->getLife() <= 0 || rbase->getLife() <= 0) { // Game over
             for (int i = 20; i <= 31; i++)
@@ -1399,7 +259,7 @@ int main()
         }
         for (int i = 0; i < nScreenWidth * nScreenHeight; i++)
             screen[i] = L' ';
-        SetScene(screen);
+        SetScene(screen, lMineral, rMineral);
         // Timing
 
 
@@ -1544,22 +404,22 @@ int main()
 
         if (lcrope != NULL && bKey[10]) {
             lcropc = 0;
-            eNodeFree(lcrope);
+            eNodeFree(lcrope, hFree);
             lcrope = NULL;
         }
         if (lcropw != NULL && bKey[10]) {
             lcropc = 0;
-            wNodeFree(lcropw);
+            wNodeFree(lcropw, wFree);
             lcropw = NULL;
         }
         if (rcrope != NULL && bKey[21]) {
             rcropc = 0;
-            eNodeFree(rcrope);
+            eNodeFree(rcrope, hFree);
             rcrope = NULL;
         }
         if (rcropw != NULL && bKey[21]) {
             rcropc = 0;
-            wNodeFree(rcropw);
+            wNodeFree(rcropw, wFree);
             rcropw = NULL;
         }
         for (int i = 5; i <= 9; i++)
@@ -1568,9 +428,9 @@ int main()
                 int type = card[i - 4].getType();
                 lcropc = i - 4;
                 if (type <= 10)
-                    setlcrope(type, 0, 20);
+                    setlcrope(type, 0, 20, lcrope, lcropw, wFree, hFree);
                 else
-                    setlcropw(type - 10, 0, 20);
+                    setlcropw(type - 10, 0, 20, lcrope, hFree, lcropw, wFree);
                 break;
             }
         }
@@ -1580,26 +440,12 @@ int main()
                 rcropc = i - 10;
                 int type = card[i - 10].getType();
                 if (type <= 10)
-                    setrcrope(type, 1, 150);
+                    setrcrope(type, 1, 150, rcropw, rcrope, wFree, hFree);
                 else
-                    setrcropw(type - 10, 1, 150);
+                    setrcropw(type - 10, 1, 150, rcrope, hFree, rcropw, wFree);
                 break;
             }
         }
-        //if (wMid != NULL)
-        //    wsprintf(&screen[16 * nScreenWidth + 30], L"%d", wMid->w.getTime());
-        //if (hDown != NULL && hDown->e.getState() == ATTACK) {
-        //    wsprintf(&screen[10 * nScreenWidth + 10], L"!!!!!");
-        //}
-        /*if (test)
-            wsprintf(&screen[10 * nScreenWidth + 10], L"%d", wMid->w.getRx());*/
-        /*int cnt = 0;
-        for (auto i = hMid; i != NULL; i = i->ne) {
-            cnt++;
-            wsprintf(&screen[10 * nScreenWidth + 10], L"%d", cnt);
-        }*/
-
-        
 
         if (lcrope != NULL) {
             if (bKey[0])
@@ -1726,29 +572,29 @@ int main()
 
         // Game Logic
         // Check attack
-        EffectMove(wUp, hUp);
-        EffectMove(wMid, hMid);
-        EffectMove(wDown, hDown); // Keep Order!
-        AttackMove(hUp, wUp);
-        AttackMove(hMid, wMid);
-        AttackMove(hDown, wDown);
+        EffectMove(wUp, hUp, wFree);
+        EffectMove(wMid, hMid, wFree);
+        EffectMove(wDown, hDown, wFree); // Keep Order!
+        AttackMove(hUp, wUp, wFree, hUp, hMid, hDown);
+        AttackMove(hMid, wMid, wFree, hUp, hMid, hDown);
+        AttackMove(hDown, wDown, wFree, hUp, hMid, hDown);
 
 
         // Check invalid entities and delete
-        StatusAccountE(hUp);
-        StatusAccountE(hMid);
-        StatusAccountE(hDown);
-        StatusAccountW(wUp);
-        StatusAccountW(wMid);
-        StatusAccountW(wDown);
+        StatusAccountE(hUp, Goliath, Needle, hFree, lMineral, rMineral);
+        StatusAccountE(hMid, Goliath, Needle, hFree, lMineral, rMineral);
+        StatusAccountE(hDown, Goliath, Needle, hFree, lMineral, rMineral);
+        StatusAccountW(wUp, wFree);
+        StatusAccountW(wMid, wFree);
+        StatusAccountW(wDown, wFree);
 
         // Display to player
         for (int k = 0; k < 24; k++)
             bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("ADWS\x20\x31\x32\x33\x34\x35\xc0JLIK\x0D\x37\x38\x39\x30\xBD\x08\x01\x02"[k]))) != 0;
 
         SetCard(screen);
-        SetEntity(screen);
-        SetWeapon(screen);
+        SetEntity(screen, hUp, hMid, hDown, lcrope, rcrope);
+        SetWeapon(screen, wUp, wMid, wDown, lcropw, rcropw);
         SetTimeCount(screen, t.getM(), t.getS());
 
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0,0 }, &dwBytesWritten);

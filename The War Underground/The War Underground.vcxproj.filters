@@ -30,6 +30,12 @@
     <ClCompile Include="Timecount.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Choosecard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamestart.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -45,6 +51,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Timecount.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Choosecard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamestart.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
