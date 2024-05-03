@@ -37,7 +37,98 @@ void SetStartButton(wchar_t* screen, int cnt)
     wsprintf(&screen[27 * nScreenWidth + 143], L"Touch To Start");
 }
 
-void ccInput(bool* bKey, int* lq, int* rq, int &x, int &y, int &x0, int &y0, int &crnum, int &lhh, int &rhh)
+void ccaInput(bool* bKey, int* lq, int* rq, int& x, int& y, int& x0, int& y0, int& crnum, int& lhh, int& rhh)
+{
+    if (bKey[22]) {
+        if (y >= 200 && y <= 280) {
+            if (x >= 385 && x <= 510) {
+                crnum = 1;
+                x0 = 40, y0 = 8;
+            }
+            else if (x >= 575 && x <= 700) {
+                crnum = 2;
+                x0 = 60, y0 = 8;
+            }
+            else if (x >= 760 && x <= 890) {
+                crnum = 3;
+                x0 = 80, y0 = 8;
+            }
+            else if (x >= 945 && x <= 1075) {
+                crnum = 4;
+                x0 = 100, y0 = 8;
+            }
+            else if (x >= 1135 && x <= 1260) {
+                crnum = 5;
+                x0 = 120, y0 = 8;
+            }
+        }
+        else if (y >= 385 && y <= 465) {
+            if (x >= 385 && x <= 510) {
+                crnum = 6;
+                x0 = 40, y0 = 18;
+            }
+            else if (x >= 575 && x <= 700) {
+                crnum = 7;
+                x0 = 60, y0 = 18;
+            }
+            else if (x >= 760 && x <= 890) {
+                crnum = 8;
+                x0 = 80, y0 = 18;
+            }
+            else if (x >= 945 && x <= 1075) {
+                crnum = 9;
+                x0 = 100, y0 = 18;
+            }
+            else if (x >= 1135 && x <= 1260) {
+                crnum = 10;
+                x0 = 120, y0 = 18;
+            }
+        }
+        else if (y >= 575 && y <= 650) {
+            if (x >= 385 && x <= 510) {
+                crnum = 11;
+                x0 = 40, y0 = 28;
+            }
+            else if (x >= 575 && x <= 700) {
+                crnum = 12;
+                x0 = 60, y0 = 28;
+            }
+            else if (x >= 760 && x <= 890) {
+                crnum = 13;
+                x0 = 80, y0 = 28;
+            }
+            else if (x >= 945 && x <= 1075) {
+                crnum = 14;
+                x0 = 100, y0 = 28;
+            }
+            else if (x >= 1135 && x <= 1260) {
+                crnum = 15;
+                x0 = 120, y0 = 28;
+            }
+        }
+    }
+    if (bKey[23]) {
+        crnum = 0;
+    }
+    if (bKey[4] && crnum != 0 && lhh < 9) {
+        bool isSame = false;
+        for (int i = 1; i <= lhh; i++)
+            if (lq[i] == crnum) {
+                isSame = true;
+                break;
+            }
+        if (!isSame) {
+            lq[++lhh] = crnum;
+            crnum = 0;
+        }
+    }
+
+    if (bKey[10] && lhh != 0) {
+        lq[lhh--] = 0;
+    }
+}
+
+void cctInput(bool* bKey, int* lq, int* rq, int &x, int &y, int &x0, int &y0, int &crnum, int &lhh, int &rhh)
 {
     if (bKey[22]) {
         if (y >= 200 && y <= 280) {

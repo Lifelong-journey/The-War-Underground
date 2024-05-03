@@ -7,6 +7,15 @@
 
 using namespace std;
 
+struct Inittype {
+	int type;
+	int power, mspeed, range, life, armor, aspeed;
+	int state, abnormal;
+	int road;
+	int lx, len, rx, height;
+	int mcount, acount;
+};
+
 
 class Entity {
 private:

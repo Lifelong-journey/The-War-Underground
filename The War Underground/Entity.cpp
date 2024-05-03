@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "Define.h"
+#include "Foolai.h"
 #include <iostream>
 #include <cstring>
 
@@ -7,14 +8,7 @@ using namespace std;
 
 static int rNum[4] = { 17, 30, 42 }; // the same as U, M, D overhead
 
-struct Inittype {
-	int type;
-	int power, mspeed, range, life, armor, aspeed;
-	int state, abnormal;
-	int road;
-	int lx, len, rx, height;
-	int mcount, acount;
-}itp[20];
+struct Inittype itp[20];
 
 //wstring graph[30];
 
@@ -27,12 +21,14 @@ void inititp()
 	itp[4] = { 4, 20, 0, 10, 200, 0, 15, MOVE, NORMAL, MIDROAD, 15, 11, 25, 3, 0, 0 }; // bunker
 	itp[5] = { 5, 0, 0, 0, 300, 0, 0, MOVE, NORMAL, MIDROAD, 15, 13, 27, 4, 0, 0 }; // plant
 	itp[6] = { 6, 200, 1, 5, 50, 0, 0, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // bomber
-	itp[7] = { 7, 150, 3, 50, 200, 0, 70, MOVE, NORMAL, MIDROAD, 15, 12, 26, 4, 0, 0 }; // heavy artillery
+	itp[7] = { 7, 100, 3, 50, 150, 0, 80, MOVE, NORMAL, MIDROAD, 15, 12, 26, 4, 0, 0 }; // heavy artillery
 	itp[8] = { 8, 0, 1, 10, 75, 0, 30, MOVE, NORMAL, MIDROAD, 15, 7, 21, 4, 0, 0 }; // guard
-	itp[9] = { 9, 50, 2, 3, 125, 0, 15, MOVE, NORMAL, MIDROAD, 15, 9, 23, 4, 0, 0 }; // sonic cannon
+	itp[9] = { 9, 50, 2, 3, 150, 0, 15, MOVE, NORMAL, MIDROAD, 15, 9, 23, 4, 0, 0 }; // sonic cannon
 	itp[10] = { 10, 10, 2, 25, 100, 0, 15, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3, 0, 0 }; // flamethrower
 	itp[11] = { 11, 25, 30, 50, 2000, 0, 30, MOVE, NORMAL, MIDROAD, 150, 13, 162, 6, 0, 0 }; // Goliath
 	itp[12] = { 12, 50, 15, 50, 2000, 0, 60, MOVE, NORMAL, MIDROAD, 20, 19, 38, 6, 0, 0 }; // Needle
+
+	fInitAbsoluteW(itp);
 }
 
 //void initgraph()

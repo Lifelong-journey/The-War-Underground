@@ -36,6 +36,12 @@
     <ClCompile Include="Gamestart.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Foolai.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cleverai.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -57,6 +63,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Gamestart.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Foolai.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Cleverai.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

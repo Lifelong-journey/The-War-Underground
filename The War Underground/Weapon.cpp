@@ -16,7 +16,7 @@ struct InitWeapon {
 
 void inititw()
 {
-	itw[1] = { 1, 250, INF, 1, 2, MIDROAD, 15, 10, 24, 0 }; // missile
+	itw[1] = { 1, 200, INF, 1, 2, MIDROAD, 15, 10, 24, 0 }; // missile
 	itw[2] = { 2, 15, 150, 20, 0, MIDROAD, 15, 20, 34, 0 }; // water
 	itw[3] = { 3, 0, 50, 1, 0, MIDROAD, 15, 15, 29, 0 }; // emp
 	itw[4] = { 4, 20, 100, 20, 0, MIDROAD, 15, 20, 34, 0 }; // nanobots

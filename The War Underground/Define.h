@@ -32,4 +32,19 @@
 // the length of card
 #define CARDLEN 15
 
+#define BASE 0
+#define SOLDIER 1
+#define TANK 2
+#define BAZOOKA 3
+#define BUNKER 4
+#define PLANT 5
+#define BOMBER 6
+#define ARTILLERY 7
+#define GUARD 8
+#define SONIC 9
+#define GOLIATH 10
+#define MISSILE 11
+
+#define MOTIONLESS 75
+
 #endif
