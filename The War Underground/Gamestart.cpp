@@ -1,8 +1,76 @@
-#include "Gamestart.h"
+﻿#include "Gamestart.h"
 #include "Card.h"
 #include "Entity.h"
 #include "Weapon.h"
 #include "Define.h"
+
+Bullet b[BULLETNUMBER];
+
+void initBullet()
+{
+    for (int i = 0; i < BULLETNUMBER; i++)
+        b[i].setBullet(false, 0, 0, 0, 0); // fill with junck
+}
+
+void DrawBullet(wchar_t* screen)
+{
+    for (int i = 0; i < BULLETNUMBER; i++)
+        if (b[i].getValid())
+            b[i].bDraw(screen);
+}
+
+void moveBullet()
+{
+    for (int i = 0; i < BULLETNUMBER; i++)
+        if (b[i].getValid())
+            b[i].bMove();
+}
+
+void shotBullet(int destination, Entity* e)
+{
+    int type = e->getType();
+    int road = e->getRoad();
+    int xx = e->getDir() ? e->getLx() : e->getRx();
+    for (int i = 0; i < BULLETNUMBER; i++)
+        if (!b[i].getValid()) {
+            switch (type) {
+            case 0:
+                b[i].setBullet(true, 2, xx, rNum[road] - 2, destination);
+                break;
+            case 1:
+                b[i].setBullet(true, 1, xx, rNum[road] - 2, destination);
+                break;
+            case 2:
+                b[i].setBullet(true, 2, xx, rNum[road] - 3, destination);
+                break;
+            case 3:
+                b[i].setBullet(true, 3, xx, rNum[road] - 3, destination);
+                break;
+            case 4:
+                b[i].setBullet(true, 1, xx, rNum[road] - 2, destination);
+                break;
+            case 7:
+                b[i].setBullet(true, 3, xx, rNum[road] - 4, destination);
+                break;
+            case 9:
+                b[i].setBullet(true, 4, xx, rNum[road] - 4, destination);
+                break;
+            case 10:
+                if (e->getDir())
+                    b[i].setBullet(true, 5, xx, rNum[road] - 2, xx - 25);
+                else 
+                    b[i].setBullet(true, 5, xx, rNum[road] - 2, xx + 25);
+                break;
+            case 11:
+                b[i].setBullet(true, 2, xx, rNum[road] - 4, destination);
+                break;
+            case 12:
+                b[i].setBullet(true, 3, xx, rNum[road] - 2, destination);
+                break;
+            }
+            break;
+        }
+}
 
 void wClear(wNode*& list, wNode*& wFree)
 {
@@ -48,7 +116,7 @@ void setlcropw(int num, bool player, int x, eNode*& lcrope, eNode*& hFree, wNode
     }
     if (lcropw == NULL)
         lcropw = getFreewNode(wFree);
-    lcropw->w.setWeapon(num, player, x);
+    lcropw->w.setWeapon(num, player, x, MIDROAD);
 }
 
 void setrcropw(int num, bool player, int x, eNode*& rcrope, eNode*& hFree, wNode*& rcropw, wNode*& wFree)
@@ -59,7 +127,7 @@ void setrcropw(int num, bool player, int x, eNode*& rcrope, eNode*& hFree, wNode
     }
     if (rcropw == NULL)
         rcropw = getFreewNode(wFree);
-    rcropw->w.setWeapon(num, player, x);
+    rcropw->w.setWeapon(num, player, x, MIDROAD);
 }
 
 void setrcrope(int num, bool player, int x, wNode*& rcropw, eNode*& rcrope, wNode*& wFree, eNode*& hFree)
@@ -107,12 +175,13 @@ void EffectMove(wNode*& list, eNode* elist, wNode*& wFree)
 bool TakeEffect(wNode* wn, eNode* elist, wNode*& wlist, wNode*& wFree)
 {
     auto w = wn->w;
+    int type = w.getType();
     for (auto j = elist; j != NULL; j = j->ne)
     {
         auto& e = j->e;
         if (e.getRx() < w.getLx() || e.getLx() > w.getRx())
             continue;
-        int type = w.getType();
+
         switch (type) {
         case 1:
             if (e.getPlayer() == w.getPlayer())
@@ -121,19 +190,24 @@ bool TakeEffect(wNode* wn, eNode* elist, wNode*& wlist, wNode*& wFree)
             wNodeDelete(wn, wlist);
             wNodeFree(wn, wFree);
             return true; // the missile can only attack one entity
+            break;
+
         case 2:
             e.mdfLife(-w.getPower());
-            return false; // the water can damage all the entity, no matter enemy or friend
+            break;
+
         case 3:
             if (e.getPlayer() == w.getPlayer())
                 continue;
             e.mdfRange(5);
-            return false;
+            break;
+
         case 4:
             if (e.getPlayer() != w.getPlayer())
                 continue;
             e.mdfLife(w.getPower());
-            return false;
+            break;
+
         case 5:
             if (w.getTime() >= 240)
                 continue;
@@ -141,24 +215,38 @@ bool TakeEffect(wNode* wn, eNode* elist, wNode*& wlist, wNode*& wFree)
             wNodeDelete(wn, wlist);
             wNodeFree(wn, wFree);
             return true;
+            break;
+
         case 6:
             if (e.getPlayer() != w.getPlayer())
                 continue;
             e.mdfArmor(w.getPower());
-            return false;
+            break;
         }
+    }
+
+    switch (type) {
+    case 2:
+        return false; // the water can damage all the entity, no matter enemy or friend
+    case 3:
+        return false;
+    case 4:
+        return false;
+    case 6:
+        return false;
     }
     return false;
 }
 
-void AttackMove(eNode*& list, wNode*& listw, wNode*& wFree, eNode*& hUp, eNode*& hMid, eNode* hDown)
+void AttackMove(eNode*& list, wNode*& listw, wNode*& wFree, eNode*& hUp, eNode*& hMid, eNode*& hDown)
 {
     for (auto i = list; i != NULL; i = i->ne)
     {
         if (i->e.getType() == 8) {
-            Move(i);
+            if (!CheckUpDown(i, hUp, hMid, hDown))
+                Move(i); // not attack
             wNode* wn = getFreewNode(wFree);
-            wn->w.setWeapon(6, i->e.getPlayer(), i->e.getLx() + 3 - 20);
+            wn->w.setWeapon(6, i->e.getPlayer(), i->e.getLx() + 3 - 20, i->e.getRoad());
             AddwList(wn, listw);
             continue;
         }
@@ -182,14 +270,13 @@ void StatusAccountW(wNode* &list, wNode* &wFree)
     wNode* now = NULL;
     for (auto i = list; i != NULL; i = i->ne)
     {
-
         i->w.cutTime();
         if (now != NULL) {
             wNodeDelete(now, list);
             wNodeFree(now, wFree);
             now = NULL;
         }
-        if (i->w.getTime() < 0)
+        if (i->w.getTime() < 0 || (i->w.getType() == 1 && (i->w.getLx() < 5 || i->w.getRx() > 175)))
             now = i;
     }
     if (now != NULL) {
@@ -243,25 +330,34 @@ bool CheckMove(eNode* x, int dist)
 
 void SetTimeCount(wchar_t* screen, int m, int s)
 {
-    wsprintf(&screen[10 * nScreenWidth + 30], L"%d : %d", m, s);
+    wsprintf(&screen[9 * nScreenWidth + 87], L"%d : %d", m, s);
 }
 
-void StatusAccountE(eNode*& list, bool &Goliath, bool &Needle, eNode* &hFree, int &lMineral, int &rMineral)
+void StatusAccountE(eNode*& list, bool &Goliath, bool &Needle, eNode* &hFree, int &lMineral, int &rMineral, int t, int ms)
 {
     eNode* now = NULL;
     for (auto i = list; i != NULL; i = i->ne)
     {
+        if (i->e.getMcount()) {
+            i->e.setState(MOVE);
+        }
+        else {
+            i->e.setState(ATTACK);
+        }
         if (i->e.getType() == 11 && !Goliath && i->e.getLife() <= 1000) {
             Goliath = true;
             int cnt = 10;
             for (auto j = i->pre; j != NULL; j = j->pre) {
                 if (!j->e.getPlayer()) {
-                    while (cnt-- && j->e.getLife() > 0)
+                    while (cnt && j->e.getLife() > 0)
+                    {
                         j->e.mdfLife(-40);
+                        cnt--;
+                    }
                 }
             }
         }
-        if (i->e.getType() == 12 && !Goliath && i->e.getLife() <= 1000) {
+        if (i->e.getType() == 12 && !Needle && i->e.getLife() <= 1000) {
             Needle = true;
             for (auto j = i->ne; j != NULL; j = j->ne) {
                 if (j->e.getPlayer()) {
@@ -285,6 +381,9 @@ void StatusAccountE(eNode*& list, bool &Goliath, bool &Needle, eNode* &hFree, in
             eNodeDelete(now, list);
             eNodeFree(now, hFree);
             now = NULL;
+        }
+        if (t > 150 && ms == 0 && i->e.getType() != 12 && i->e.getType() != 11) {
+            i->e.mdfLife(-itp[i->e.getType()].life / 20);
         }
         if (!CheckAlive(i))
             now = i;
@@ -333,6 +432,7 @@ void wNodeDelete(wNode* x, wNode*& list)
 
 void eNodeFree(eNode* x, eNode*& hFree)
 {
+    x->e.setState(UNUSED);
     hFree->pre = x;
     x->ne = hFree;
     hFree = x;
@@ -405,14 +505,15 @@ bool CheckUpDown(eNode* x, eNode*& hUp, eNode*& hMid, eNode*& hDown)
                 x->e.eMoveDown();
                 eNodeDelete(x, hUp);
                 AddList(x, hMid);
+
             }
-            return true;
+                return true;
         }
     }
     else if (road == DOWNROAD) {
         if ((!player && lx <= PIPED && rx >= PIPED) || (player && lx <= PIPEE && rx >= PIPEE)) {
             if (CheckAttackB(x, hMid) && !CheckCollision(x, hMid)) {
-                x->e.eMoveUp();
+                x->e.eModifyY(true);
                 eNodeDelete(x, hDown);
                 AddList(x, hMid);
                 return true;
@@ -420,11 +521,12 @@ bool CheckUpDown(eNode* x, eNode*& hUp, eNode*& hMid, eNode*& hDown)
         }
         else if ((!player && lx <= PIPEE && rx >= PIPEE) || (player && lx <= PIPED && rx >= PIPED)) {
             if (!CheckCollision(x, hMid)) {
-                x->e.eMoveUp();
+                x->e.eModifyY(true);
                 eNodeDelete(x, hDown);
                 AddList(x, hMid);
+
             }
-            return true;
+                return true;
         }
     }
     return false;
@@ -446,7 +548,7 @@ wNode* getFreewNode(wNode*& wFree)
     return x;
 }
 
-void AddwList(wNode* a, wNode*& list) // ͷ�巨
+void AddwList(wNode* a, wNode*& list) // 头插法
 {
     if (list == NULL) {
         a->ne = NULL;
@@ -499,7 +601,7 @@ void AddList(eNode* a, eNode*& list)
 
 void Attack(eNode* source, eNode* target)
 {
-    source->e.setState(ATTACK);
+    //source->e.setState(ATTACK);
     if (source->e.getType() == 6) {
         for (auto i = source->ne; i != NULL; i = i->ne) {
             if (source->e.getRx() + 15 < i->e.getLx())
@@ -517,6 +619,11 @@ void Attack(eNode* source, eNode* target)
         return;
     }
 
+    if (source->e.getType() == 10)
+        if (target->e.getLx() > source->e.getLx()) // on the right
+            shotBullet(target->e.getLx(), &source->e);
+        else // on the left
+            shotBullet(target->e.getRx(), &source->e);
     source->e.addAcount(1);
     if (source->e.getType() != 11 && source->e.getType() != 12)
         source->e.resetMcount();
@@ -541,6 +648,11 @@ void Attack(eNode* source, eNode* target)
             }
             return;
         }
+        // shot bullet
+        if (target->e.getLx() > source->e.getLx()) // on the right
+            shotBullet(target->e.getLx(), &source->e);
+        else // on the left
+            shotBullet(target->e.getRx(), &source->e);
         target->e.mdfLife(-source->e.getPower());
     }
     return;
@@ -563,8 +675,11 @@ bool CheckAttack(eNode* a) // Can be better
 
                 if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) // out of attack range Or no enemy
                     return false;
-                else
+                else {
+                    a->e.setDir(0);
                     Attack(a, next);
+                }
+
             }
         }
         else if (a->ne == NULL) { // Nothing right
@@ -597,8 +712,11 @@ bool CheckAttack(eNode* a) // Can be better
             if (prev == NULL) {
                 if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) // out of attack range Or no enemy
                     return false;
-                else
+                else {
+                    a->e.setDir(0);
                     Attack(a, next);
+                }
+
             }
             else if (next == NULL) {
                 if (prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25)
@@ -612,15 +730,20 @@ bool CheckAttack(eNode* a) // Can be better
                 if (prev->e.getRx() < a->e.getLx() - a->e.getRange() || prev->e.getLx() > a->e.getLx() - 25) {
                     if (next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25)
                         return false;
-                    else
+                    else {
+                        a->e.setDir(0);
                         Attack(a, next);
+                    }
+
                 }
                 else if (next->e.getLx() > a->e.getRange() + a->e.getRx() || next->e.getRx() < a->e.getRx() + 25) {
                     a->e.setDir(1);
                     Attack(a, prev);
                 }
-                else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx())
+                else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx()) {
+                    a->e.setDir(0);
                     Attack(a, next);
+                }
                 else {
                     a->e.setDir(1);
                     Attack(a, prev);
@@ -644,8 +767,11 @@ bool CheckAttack(eNode* a) // Can be better
 
             if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range Or no enemy
                 return false;
-            else
+            else {
+                a->e.setDir(0);
                 Attack(a, next);
+            }
+
         }
     }
     else if (a->ne == NULL) { // Nothing right
@@ -678,8 +804,11 @@ bool CheckAttack(eNode* a) // Can be better
         if (prev == NULL) {
             if (next == NULL || next->e.getLx() > a->e.getRange() + a->e.getRx()) // out of attack range Or no enemy
                 return false;
-            else
+            else {
+                a->e.setDir(0);
                 Attack(a, next);
+            }
+
         }
         else if (next == NULL) {
             if (prev->e.getRx() < a->e.getLx() - a->e.getRange())
@@ -694,15 +823,21 @@ bool CheckAttack(eNode* a) // Can be better
             if (prev->e.getRx() < a->e.getLx() - a->e.getRange()) {
                 if (next->e.getLx() > a->e.getRange() + a->e.getRx())
                     return false;
-                else
+                else {
+                    a->e.setDir(0);
                     Attack(a, next);
+                }
+
             }
             else if (next->e.getLx() > a->e.getRange() + a->e.getRx()) {
                 a->e.setDir(1);
                 Attack(a, prev);
             }
-            else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx())
+            else if (next->e.getLx() - a->e.getRx() <= a->e.getLx() - prev->e.getRx()) {
+                a->e.setDir(0);
                 Attack(a, next);
+            }
+
             else {
                 a->e.setDir(1);
                 Attack(a, prev);
@@ -798,6 +933,95 @@ void PrintFlag(wchar_t* screen)
     wsprintf(&screen[51 * nScreenWidth + 10], L"-----------");
 }
 
+void setMineral(wchar_t* screen, int lm, int rm)
+{
+    switch (lm) {
+    case 1:
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧");
+        break;
+    case 2:
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧");
+        break;
+    case 3:
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧");
+        break;
+    case 4:
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 5:
+        wsprintf(&screen[3 * nScreenWidth + 150], L" ▧");
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 6:
+        wsprintf(&screen[3 * nScreenWidth + 150], L" ▧ ▧");
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 7:
+        wsprintf(&screen[3 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 8:
+        wsprintf(&screen[2 * nScreenWidth + 150], L"  ▧");
+        wsprintf(&screen[3 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 9:
+        wsprintf(&screen[2 * nScreenWidth + 150], L"  ▧ ▧");
+        wsprintf(&screen[3 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 10:
+        wsprintf(&screen[1 * nScreenWidth + 150], L"   ▧");
+        wsprintf(&screen[2 * nScreenWidth + 150], L"  ▧ ▧");
+        wsprintf(&screen[3 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[4 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    }
+
+    switch (rm) {
+    case 1:
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧");
+        break;
+    case 2:
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧");
+        break;
+    case 3:
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧");
+        break;
+    case 4:
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 5:
+        wsprintf(&screen[49 * nScreenWidth + 150], L" ▧");
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 6:
+        wsprintf(&screen[49 * nScreenWidth + 150], L" ▧ ▧");
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 7:
+        wsprintf(&screen[49 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 8:
+        wsprintf(&screen[48 * nScreenWidth + 150], L"  ▧");
+        wsprintf(&screen[49 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 9:
+        wsprintf(&screen[48 * nScreenWidth + 150], L"  ▧ ▧");
+        wsprintf(&screen[49 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    case 10:
+        wsprintf(&screen[47 * nScreenWidth + 150], L"   ▧");
+        wsprintf(&screen[48 * nScreenWidth + 150], L"  ▧ ▧");
+        wsprintf(&screen[49 * nScreenWidth + 150], L" ▧ ▧ ▧");
+        wsprintf(&screen[50 * nScreenWidth + 150], L"▧ ▧ ▧ ▧");
+        break;
+    }
+}
+
 void SetScene(wchar_t* screen, int& lMineral, int& rMineral)
 {
     for (int i = 0; i < nScreenWidth; i++)
@@ -834,7 +1058,28 @@ void SetScene(wchar_t* screen, int& lMineral, int& rMineral)
     PrintPipe(screen, 30, PIPED - 2);
     PrintPipe(screen, 30, PIPEE - 2);
     PrintFlag(screen);
-    wsprintf(&screen[nScreenWidth + 140], L"%d", lMineral);
-    wsprintf(&screen[47 * nScreenWidth + 140], L"%d", rMineral);
+    
+    setMineral(screen, lMineral, rMineral);
+    //wsprintf(&screen[nScreenWidth + 140], L"%d", lMineral);
+    //wsprintf(&screen[47 * nScreenWidth + 140], L"%d", rMineral);
     return;
+}
+
+
+
+void setBullet(wchar_t* screen)
+{
+    for (int i = 0; i < BULLETNUMBER; i++)
+        if (b[i].getValid()) {
+
+            b[i].bMove();
+            b[i].bDraw(screen);
+        }
+
+}
+
+void clearBullet()
+{
+    for (int i = 0; i < BULLETNUMBER; i++)
+        b[i].setInvalid();
 }

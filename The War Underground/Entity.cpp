@@ -1,14 +1,14 @@
 #include "Entity.h"
 #include "Define.h"
 #include "Foolai.h"
+#include "Cleverai.h"
 #include <iostream>
 #include <cstring>
 
 using namespace std;
 
-static int rNum[4] = { 17, 30, 42 }; // the same as U, M, D overhead
-
-struct Inittype itp[20];
+int rNum[4] = { 17, 30, 42 }; // the same as U, M, D overhead
+Inittype itp[20] = {0};
 
 //wstring graph[30];
 
@@ -27,8 +27,9 @@ void inititp()
 	itp[10] = { 10, 10, 2, 25, 100, 0, 15, MOVE, NORMAL, MIDROAD, 15, 6, 20, 3, 0, 0 }; // flamethrower
 	itp[11] = { 11, 25, 30, 50, 2000, 0, 30, MOVE, NORMAL, MIDROAD, 150, 13, 162, 6, 0, 0 }; // Goliath
 	itp[12] = { 12, 50, 15, 50, 2000, 0, 60, MOVE, NORMAL, MIDROAD, 20, 19, 38, 6, 0, 0 }; // Needle
-
-	fInitAbsoluteW(itp);
+	itp[13] = { 13 };
+	fInitAbsoluteW();
+	InitAbsoluteW();
 }
 
 //void initgraph()
@@ -93,7 +94,7 @@ void Entity::eDraw(wchar_t* screen)
 	{
 	case 0:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"       P    ");
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"       P    ");// *
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" $    _|_   ");
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" |  _|_0_|_ ");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"/*\\| [] [] |");
@@ -109,7 +110,7 @@ void Entity::eDraw(wchar_t* screen)
 
 	case 1:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  o   ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  o   "); // .
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"< H --");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" / \\  ");
 		}
@@ -122,7 +123,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 2:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"    ___ __ ");
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"    ___ __ "); // *
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" __/___\\__ ");
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"/_________\\");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"o o o o o o");
@@ -137,7 +138,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 3:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  // // _  ");
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  // // _  "); // >
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" //_//_|_\\ ");
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"|_________\\");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" O      O  ");
@@ -151,7 +152,7 @@ void Entity::eDraw(wchar_t* screen)
 		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L"[%d|%d]", life, itp[3].life);
 		break;
 	case 4:
-		wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  _     _  ");
+		wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  _     _  "); // .
 		wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L" / \\___/ \\ ");
 		wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L"/ #|   |# \\");
 		wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx + 1], L"[%d|%d]", life, itp[4].life);
@@ -188,7 +189,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 7:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  [_]======>");
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"  [_]======>"); // >
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L" /___\\___   ");
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"[--------)  ");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" O  OOOOO   ");
@@ -210,7 +211,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 9:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"    ==={-");
+			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"    ==={-"); // )
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"_[]_||___");
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"\\_______/");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" oo   oo ");
@@ -225,7 +226,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 10:
 		if (!dir) {
-			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  o   ");
+			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"  o   "); // 
 			wsprintf(&screen[(rNum[road] - 2) * nScreenWidth + lx], L"[]H--=");
 			wsprintf(&screen[(rNum[road] - 1) * nScreenWidth + lx], L" / \\  ");
 		}
@@ -238,7 +239,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 11:
 		if (mcount % 120 < 30 || mcount % 120 >= 60 && mcount % 120 < 90) {
-			wsprintf(&screen[(rNum[road] - 6) * nScreenWidth + lx], L"    _-+-____ ");
+			wsprintf(&screen[(rNum[road] - 6) * nScreenWidth + lx], L"    _-+-____ "); // *
 			wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L"   {[]___  _)");
 			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L"<=====|[   ] ");
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"      // /   ");
@@ -265,7 +266,7 @@ void Entity::eDraw(wchar_t* screen)
 		break;
 	case 12:
 		if (mcount % 60 < 30) {
-			wsprintf(&screen[(rNum[road] - 6) * nScreenWidth + lx], L"     _[]======     ");
+			wsprintf(&screen[(rNum[road] - 6) * nScreenWidth + lx], L"     _[]======     "); // >
 			wsprintf(&screen[(rNum[road] - 5) * nScreenWidth + lx], L" ___/____\\________ ");
 			wsprintf(&screen[(rNum[road] - 4) * nScreenWidth + lx], L" \\----\\        ___\\");
 			wsprintf(&screen[(rNum[road] - 3) * nScreenWidth + lx], L"==| [ ])======>____");
@@ -293,6 +294,11 @@ int Entity::getMspeed()
 bool Entity::getPlayer()
 {
 	return player;
+}
+
+int Entity::getDir()
+{
+	return dir;
 }
 
 int Entity::getRoad()

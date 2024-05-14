@@ -12,8 +12,11 @@
 
 // road
 #define UPROAD 0
+#define UPROADY 17
 #define MIDROAD 1
+#define MIDROADY 30
 #define DOWNROAD 2
+#define DOWNROADY 42
 
 // pipe coordinates
 #define PIPEA 30
@@ -32,19 +35,12 @@
 // the length of card
 #define CARDLEN 15
 
-#define BASE 0
-#define SOLDIER 1
-#define TANK 2
-#define BAZOOKA 3
-#define BUNKER 4
-#define PLANT 5
-#define BOMBER 6
-#define ARTILLERY 7
-#define GUARD 8
-#define SONIC 9
-#define GOLIATH 10
-#define MISSILE 11
-
 #define MOTIONLESS 75
+
+#define PRACTICE 1
+#define HISTORY 2
+#define TWOPLAYER 3
+
+#define BULLETNUMBER 300
 
 #endif

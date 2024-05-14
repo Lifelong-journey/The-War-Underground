@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <Windows.h>
-
+#include "Bullet.h"
+#include "Define.h"
 
 using namespace std;
 
@@ -15,6 +16,8 @@ struct Inittype {
 	int lx, len, rx, height;
 	int mcount, acount;
 };
+extern Inittype itp[];
+extern int rNum[];
 
 
 class Entity {
@@ -27,17 +30,23 @@ private:
 	int lx, len, rx, height;
 	int dir; // 0 right  1 left
 	int mcount, acount;
+	//Bullet b[BULLETNUMBER];
+
 
 public:
 	Entity() = default;
 	Entity(int, bool);
 	void setEntity(int, bool, int);
+	//void setBullet(int);
+	//void moveBullet();
 	void eDraw(wchar_t*);
+	//void drawBullet(wchar_t*);
 	bool eAttack();
 	bool eCollision();
 	void eMoveX(int, bool);
 	void eModifyY(bool);
 
+	int getDir();
 	int getMspeed();
 	int getAspeed();
 	bool getPlayer();
@@ -75,7 +84,5 @@ struct eNode {
 
 //void initgraph();
 void inititp();
-
-
 
 #endif

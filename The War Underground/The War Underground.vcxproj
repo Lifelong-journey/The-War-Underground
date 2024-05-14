@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Cleverai.cpp" />
     <ClCompile Include="Foolai.cpp" />
     <ClCompile Include="Card.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="Cleverai.h" />
     <ClInclude Include="Foolai.h" />
     <ClInclude Include="Card.h" />

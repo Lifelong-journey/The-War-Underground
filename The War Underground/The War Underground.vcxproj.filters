@@ -42,6 +42,9 @@
     <ClCompile Include="Cleverai.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -69,6 +72,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Cleverai.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

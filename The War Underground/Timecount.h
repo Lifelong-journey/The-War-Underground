@@ -12,6 +12,7 @@ public:
 	void addMs();
 	int getM();
 	int getS();
+	int getMs();
 	bool isGameEnd();
 };
 

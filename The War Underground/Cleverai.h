@@ -8,11 +8,9 @@
 
 #include <queue>
 
-void initAbsoluteW(Inittype*);
-bool Search(int lMineral, int& rMineral, eNode* hMid, eNode* hUp, eNode* hDown, Card* card, queue<int>* lsq, queue<int>* rsq, int& choose, int& road, TimeCount* t);
-void FindMx(eNode* tt, int crroad, int type, int& choose, double& mxAverage, int& road, int num);
-double getwFull(eNode* tt, int type);
-double getwNull(int type);
-double getEW(Entity* e);
+typedef pair<int, int> PII;
+
+void InitAbsoluteW();
+double MinMax(int lMineral, int rMineral, eNode* hMid, eNode* hUp, eNode* hDown, Card* card, Card lncard, Card rncard, int& choose, int& road, TimeCount* t, int depth, PII lfirst, PII rfirst, PII rsecond);
 
 #endif

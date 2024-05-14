@@ -23,7 +23,12 @@ int TimeCount::getM()
 	return m;
 }
 
+int TimeCount::getMs()
+{
+	return ms;
+}
+
 bool TimeCount::isGameEnd()
 {
-	return m > 2 || m >= 2 && s >= 30;
+	return m * 60 + s > 150;
 }

@@ -4,6 +4,61 @@
 #include "Define.h"
 #include "Card.h"
 
+void setCountDown(wchar_t* screen, int c)
+{
+    for (int i = 22; i <= 28; i++)
+        for (int j = 140; j <= 175; j++)
+            screen[i * nScreenWidth + j] = L' ';
+    // wsprintf(&screen[26 * nScreenWidth + 150], L"%d", 5 - (CountDown / 20));
+    switch (5 - (c / 20)) {
+    case 5:
+        wsprintf(&screen[22 * nScreenWidth + 145], L"oooo         oooo");
+        wsprintf(&screen[23 * nScreenWidth + 145], L" '8.         .8'");
+        wsprintf(&screen[24 * nScreenWidth + 145], L"  '8.       .8' ");
+        wsprintf(&screen[25 * nScreenWidth + 145], L"   '8.     .8' ");
+        wsprintf(&screen[26 * nScreenWidth + 145], L"     '8. .8'   ");
+        wsprintf(&screen[27 * nScreenWidth + 145], L"      '888'    ");
+        wsprintf(&screen[28 * nScreenWidth + 145], L"       '8'     ");
+        break;
+    case 4:
+        wsprintf(&screen[22 * nScreenWidth + 145], L"ooooo   oooo         oooo");
+        wsprintf(&screen[23 * nScreenWidth + 145], L" 888     '8.         .8'");
+        wsprintf(&screen[24 * nScreenWidth + 145], L" 888      '8.       .8' ");
+        wsprintf(&screen[25 * nScreenWidth + 145], L" 888       '8.     .8' ");
+        wsprintf(&screen[26 * nScreenWidth + 145], L" 888         '8. .8'   ");
+        wsprintf(&screen[27 * nScreenWidth + 145], L" 888          '888'    ");
+        wsprintf(&screen[28 * nScreenWidth + 145], L"ooooo          '8'     ");
+        break;
+    case 3:
+        wsprintf(&screen[22 * nScreenWidth + 147], L"ooooo  ooooo  ooooo");
+        wsprintf(&screen[23 * nScreenWidth + 147], L" 888    888    888");
+        wsprintf(&screen[24 * nScreenWidth + 147], L" 888    888    888");
+        wsprintf(&screen[25 * nScreenWidth + 147], L" 888    888    888");
+        wsprintf(&screen[26 * nScreenWidth + 147], L" 888    888    888");
+        wsprintf(&screen[27 * nScreenWidth + 147], L" 888    888    888");
+        wsprintf(&screen[28 * nScreenWidth + 147], L"ooooo  ooooo  ooooo");
+        break;
+    case 2:
+        wsprintf(&screen[22 * nScreenWidth + 150], L"ooooo  ooooo");
+        wsprintf(&screen[23 * nScreenWidth + 150], L" 888    888");
+        wsprintf(&screen[24 * nScreenWidth + 150], L" 888    888");
+        wsprintf(&screen[25 * nScreenWidth + 150], L" 888    888");
+        wsprintf(&screen[26 * nScreenWidth + 150], L" 888    888");
+        wsprintf(&screen[27 * nScreenWidth + 150], L" 888    888");
+        wsprintf(&screen[28 * nScreenWidth + 150], L"ooooo  ooooo");
+        break;
+    case 1:
+        wsprintf(&screen[22 * nScreenWidth + 153], L"ooooo");
+        wsprintf(&screen[23 * nScreenWidth + 153], L" 888");
+        wsprintf(&screen[24 * nScreenWidth + 153], L" 888");
+        wsprintf(&screen[25 * nScreenWidth + 153], L" 888");
+        wsprintf(&screen[26 * nScreenWidth + 153], L" 888");
+        wsprintf(&screen[27 * nScreenWidth + 153], L" 888");
+        wsprintf(&screen[28 * nScreenWidth + 153], L"ooooo");
+        break;
+    }
+}
+
 void ccSetQueue(wchar_t* screen, int* lq, int* rq)
 {
     int cnt = 1;

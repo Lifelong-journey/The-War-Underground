@@ -39,7 +39,7 @@ Weapon::Weapon(int num, bool ply)
 	tcount = itw[num].tcount;
 }
 
-void Weapon::setWeapon(int num, bool ply, int x)
+void Weapon::setWeapon(int num, bool ply, int x, int r)
 {
 	player = ply;
 	type = itw[num].type;
@@ -47,7 +47,7 @@ void Weapon::setWeapon(int num, bool ply, int x)
 	time = itw[num].time;
 	aspeed = itw[num].aspeed;
 	mspeed = itw[num].mspeed;
-	road = itw[num].road;
+	road = r;
 	lx = x;
 	len = itw[num].len;
 	rx = lx + len - 1;
